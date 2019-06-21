@@ -52,7 +52,7 @@
     "start-dev": "npm-run-all -p build start-dev-frontend start-dev-backend",
     "start-dev-frontend": "http-server -p 8080 build/frontend -o http://localhost:8080/index.html",
     "start-dev-backend": "cd build/backend && node index.js",
-    "start-readme": "markserv README.md"
+    "readme": "markserv README.md"
   },
   "author": "",
   "license": "MIT"
