@@ -5,5 +5,5 @@ exports.MyRoom = class extends colyseus.Room {
   onJoin (client, options) {}
   onMessage (client, message) {}
   onLeave (client, consented) {}
-  onDispose() {}
-}
+  onDispose () {}
+};
