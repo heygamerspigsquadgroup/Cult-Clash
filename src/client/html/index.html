@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
     <script src="js/bundled.js"></script>
 </head>
 <body>
+	<script>
+	
+	var client = new Colyseus.Client('ws://localhost:2567');
+    var room = client.join("my_room");
+	
+	</script>
 </body>
 </html>
