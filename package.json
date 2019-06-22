@@ -10,9 +10,13 @@
     "colyseus.js": "^0.10.8",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",
+    "node-dependency-injection": "^2.3.5",
     "phaser": "^3.17.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
     "@colyseus/loadtest": "^0.10.1",
     "browserify": "^16.2.3",
     "cpy-cli": "^2.0.0",
@@ -21,6 +25,8 @@
     "markserv": "^1.17.2",
     "npm-run-all": "^4.1.5",
     "npm-watch": "^0.6.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "semistandard": "^13.0.1",
     "tslib": "^1.10.0"
   },
@@ -29,7 +35,7 @@
       "patterns": [
         "src"
       ],
-      "extensions": "js,html,scss"
+      "extensions": "js,jsx,html,scss"
     }
   },
   "semistandard": {
@@ -43,8 +49,10 @@
     "loadtest": "colyseus-loadtest test/server/loadtest/example.js --room my_room --numClients 2",
     "clean": "del-cli build && del-cli node_modules -f",
     "build": "npm-watch build-all",
-    "build-all": "npm-run-all -p build-frontend-js build-frontend-html build-backend-js build-backend-html",
-    "build-frontend-js": "browserify src/client/js/main.js -o build/frontend/js/bundled.js",
+    "build-all": "npm-run-all -s build-frontend-babel build-all-2",
+    "build-all-2": "npm-run-all -p build-frontend-js build-frontend-html build-backend-js build-backend-html",
+    "build-frontend-babel": "babel --presets @babel/preset-react src/client/js --out-dir build/temp/frontend/js --copy-files",
+    "build-frontend-js": "browserify build/temp/frontend/js/main.js -o build/frontend/js/bundled.js",
     "build-frontend-html": "cpy src/client/html/*.html build/frontend",
     "build-backend-js": "cpy src/server/js/*.js build/backend",
     "build-backend-html": "cpy src/server/html/*.html build/backend",
