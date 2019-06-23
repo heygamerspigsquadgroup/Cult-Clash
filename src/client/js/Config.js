@@ -1,6 +1,6 @@
-const Phaser = require('phaser');
+/* global Phaser */
 
-class Config {
+export default class Config {
   constructor (scene) {
     this.type = Phaser.AUTO;
     this.parent = 'game_container';
@@ -15,5 +15,3 @@ class Config {
     this.scene = scene;
   }
 }
-
-exports.Config = Config;

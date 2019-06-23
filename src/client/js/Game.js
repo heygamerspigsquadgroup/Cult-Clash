@@ -1,11 +1,10 @@
-const Phaser = require('phaser');
-const Config = require('./Config').Config;
-const SplashScene = require('./scenes/SplashScene').SplashScene;
+/* global Phaser */
 
-class Game extends Phaser.Game {
+import Config from './Config.js';
+import SplashScene from './scenes/SplashScene.js';
+
+export default class Game extends Phaser.Game {
   constructor () {
     super(new Config(SplashScene));
   }
 }
-
-exports.Game = Game;
