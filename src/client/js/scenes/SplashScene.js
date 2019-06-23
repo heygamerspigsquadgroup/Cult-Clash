@@ -2,32 +2,81 @@ const Phaser = require('phaser');
 
 class SplashScene extends Phaser.Scene {
   preload () {
-    this.load.setBaseURL('http://labs.phaser.io');
-
-    this.load.image('sky', 'assets/skies/space3.png');
-    this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-    this.load.image('red', 'assets/particles/red.png');
   }
 
   create () {
-    this.add.image(400, 300, 'sky');
+    // connect
+    this.client = new Colyseus.Client('ws://localhost:2567');
+    this.room = this.client.join("my_room");
 
-    var particles = this.add.particles('red');
-
-    var emitter = particles.createEmitter({
-      speed: 100,
-      scale: { start: 1, end: 0 },
-      blendMode: 'ADD'
+    this.room.onMessage.add((message) => {
+      this.updateText(message);
     });
 
-    var logo = this.physics.add.image(400, 100, 'logo');
+    this.room.onJoin.add(function(){
+          console.log("joined as session" + this.room.sessionId);
+    });
 
-    logo.setVelocity(500, 200);
-    logo.setBounce(1, 1);
-    logo.setCollideWorldBounds(true);
+    // place text elements
+    this.roomText = this.add.text(16, 16, '', { fontSize: '32px', fill: '#FFF' });
+    for(var i = 0; i < 4; i++) {
+        this.playerText[i] = this.add.text(16, 50 + 30 * i, '', { fontSize: '32px', fill: '#FFF' });
+    }
 
-    emitter.startFollow(logo);
+    // add handlers for key presses
+    this.input.keyboard.on('keydown', (event) => {
+      this.keyDown(event);
+    });
+
+    this.input.keyboard.on('keyup', (event) => {
+      this.keyUp(event);
+    });
+  }
+
+  update() {
+
+  }
+
+  keyDown(event){
+    this.room.send({ press: "down", key: event.key });
+
+  }
+
+  keyUp(event){
+    this.room.send({ press: "up", key: event.key });
+  }
+
+
+  // update room name and player list
+  updateText (message) {
+    this.roomText.setText('Room: ' + message.roomId);
+
+    for(var i = 0; i < 4; i++) {
+      if (message.playerList[i]){
+        this.playerText[i].setText('Player #' + (i+1) + ": " + message.playerList[i]);
+      }
+      else{
+        this.playerText[i].setText('');
+      }
+    }
   }
 }
 
+SplashScene.prototype.client;
+SplashScene.prototype.room;
+
+SplashScene.prototype.roomText;
+SplashScene.prototype.playerText = [];
+
 exports.SplashScene = SplashScene;
+
+
+
+
+
+
+
+
+
+
+
