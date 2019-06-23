@@ -1,7 +1,6 @@
 const colyseus = require('colyseus');
 
 exports.MyRoom = class extends colyseus.Room {
-
   onInit (options) {
         console.log("CREATING NEW ROOM");
         this.printRoomId();
@@ -37,4 +36,4 @@ exports.MyRoom = class extends colyseus.Room {
   printClientId(client){
         console.log("\t(Client ID: " + client.id + ")");
   }
-}
+};
