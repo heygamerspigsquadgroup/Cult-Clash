@@ -1,6 +1,6 @@
-const Phaser = require('phaser');
+/* global Phaser */
 
-class SplashScene extends Phaser.Scene {
+export default class SplashScene extends Phaser.Scene {
   preload () {
     this.load.setBaseURL('http://labs.phaser.io');
 
@@ -29,5 +29,3 @@ class SplashScene extends Phaser.Scene {
     emitter.startFollow(logo);
   }
 }
-
-exports.SplashScene = SplashScene;
