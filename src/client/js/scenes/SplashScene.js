@@ -4,6 +4,10 @@ class SplashScene extends Phaser.Scene {
   preload () {
   }
 
+  getSession(){
+    return this.room.sessionId;
+  }
+
   create () {
     // connect
     this.client = new Colyseus.Client('ws://localhost:2567');
@@ -11,10 +15,6 @@ class SplashScene extends Phaser.Scene {
 
     this.room.onMessage.add((message) => {
       this.updateText(message);
-    });
-
-    this.room.onJoin.add(function(){
-          console.log("joined as session" + this.room.sessionId);
     });
 
     // place text elements
@@ -54,6 +54,14 @@ class SplashScene extends Phaser.Scene {
     for(var i = 0; i < 4; i++) {
       if (message.playerList[i]){
         this.playerText[i].setText('Player #' + (i+1) + ": " + message.playerList[i]);
+                // color green if this is you
+        if (message.playerList[i] === this.getSession()){
+            this.playerText[i].setColor("#00ff00", 0);
+        }
+        else{
+            this.playerText[i].setColor("#ffffff", 0);
+        }
+
       }
       else{
         this.playerText[i].setText('');
