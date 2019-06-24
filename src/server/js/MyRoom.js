@@ -11,7 +11,7 @@ exports.MyRoom = class extends colyseus.Room {
         //this.setState({});
         // I CANT GET SETSTATE TO WORK....
 
-        this.MaxClients = 4;
+        this.maxClients = 4;
         this.playerList = {players: []};
         // this is my own 'state' for now i guess
         this.badState = {roomId: this.roomId,
@@ -25,14 +25,8 @@ exports.MyRoom = class extends colyseus.Room {
 
         this.badState.playerList = this.clients.map(c => c.sessionId);
         this.broadcast(this.badState);
-
-        // no more clients can join this room.
-        // a new room is made for further connections
-        if (this.clients.length >= this.MaxClients){
-          this.lock();
-        }
   }
-  
+
   onMessage (client, message) {
       console.log("Message from:", client.sessionId, ":", message);
   }
@@ -45,11 +39,6 @@ exports.MyRoom = class extends colyseus.Room {
 
         this.badState.playerList = this.clients.map(c => c.sessionId);
         this.broadcast(this.badState);
-
-        // allow clients to join this room again
-        if (this.clients.length < this.MaxClients){
-          this.unlock();
-        }
   }
 
   onDispose() {
