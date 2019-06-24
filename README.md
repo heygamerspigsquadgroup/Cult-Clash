@@ -1,5 +1,7 @@
 # Cult Clash!
 
+[![Build Status](https://semaphoreci.com/api/v1/heygamerspigsquadgroup/cult-clash/branches/master/badge.svg)](https://semaphoreci.com/heygamerspigsquadgroup/cult-clash)
+
 ## Modify the README
 Look here to make a good README: <https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet>
 

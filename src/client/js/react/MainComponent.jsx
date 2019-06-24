@@ -1,14 +1,14 @@
-const React = require('react');
+/* global React */
 
-class MainComponent extends React.Component {
+import inject from '../Injection.js';
+
+export default class MainComponent extends React.Component {
   constructor () {
     super();
-    this.game = window.inject.get('game');
+    this.game = inject('game');
   }
 
   render () {
     return <div>Hello World</div>;
   }
 }
-
-exports.MainComponent = MainComponent;

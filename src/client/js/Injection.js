@@ -1,7 +1,13 @@
-const ContainerBuilder = require('node-dependency-injection').ContainerBuilder;
-const Game = require('./Game').Game;
+/* global Bottle */
 
-window.inject = new ContainerBuilder();
+import Game from './Game.js';
 
-inject
-  .register('game', Game);
+const bottle = new Bottle();
+
+export function loadInjection () {
+  bottle.service('game', Game);
+}
+
+export default function inject (id) {
+  return bottle.container[id];
+}

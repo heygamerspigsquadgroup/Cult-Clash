@@ -1,6 +1,6 @@
-const Phaser = require('phaser');
+/* global Phaser */
 
-class SplashScene extends Phaser.Scene {
+export default class SplashScene extends Phaser.Scene {
   preload () {
   }
 
@@ -69,22 +69,8 @@ class SplashScene extends Phaser.Scene {
     }
   }
 }
-
 SplashScene.prototype.client;
 SplashScene.prototype.room;
 
 SplashScene.prototype.roomText;
 SplashScene.prototype.playerText = [];
-
-exports.SplashScene = SplashScene;
-
-
-
-
-
-
-
-
-
-
-
