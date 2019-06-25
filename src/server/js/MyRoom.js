@@ -1,21 +1,15 @@
 const colyseus = require('colyseus');
-//const State = require('./State').State;
+const State = require('./State').State;
+const Player = require('./Player').Player;
 
 exports.MyRoom = class extends colyseus.Room {
 
-
   onInit (options) {
+        this.maxClients = 4;
+
         console.log("\nCREATING NEW ROOM");
         this.printRoomId();
-        //this.setState(new State());
-        //this.setState({});
-        // I CANT GET SETSTATE TO WORK....
-
-        this.maxClients = 4;
-        this.playerList = {players: []};
-        // this is my own 'state' for now i guess
-        this.badState = {roomId: this.roomId,
-                            playerList: []};
+        this.setState(new State());
   }
   onJoin (client, options) {
         console.log("\nCLIENT JOINED (" + this.clients.length + " clients total)");
@@ -23,12 +17,17 @@ exports.MyRoom = class extends colyseus.Room {
         this.printSessionId(client);
         this.printRoomId();
 
-        this.badState.playerList = this.clients.map(c => c.sessionId);
-        this.broadcast(this.badState);
+        this.state.players[client.sessionId] =  new Player();
   }
 
   onMessage (client, message) {
-      console.log("Message from:", client.sessionId, ":", message);
+      //console.log("Message from:", client.sessionId, ":", message);
+      if (message.key){
+        // a client pressed or released a key
+        this.handleKeyEvent(client.sessionId, message.key);
+
+      }
+      // handle other message types...
   }
 
   onLeave (client, consented) {
@@ -37,8 +36,7 @@ exports.MyRoom = class extends colyseus.Room {
         this.printSessionId(client);
         this.printRoomId();
 
-        this.badState.playerList = this.clients.map(c => c.sessionId);
-        this.broadcast(this.badState);
+        delete this.state.players[client.sessionId];
   }
 
   onDispose() {
@@ -46,6 +44,37 @@ exports.MyRoom = class extends colyseus.Room {
         this.printRoomId();
   }
 
+
+  handleKeyEvent(sessionId, keyMsg){
+    // keyMsg should be {state: up/down, keyCode: #}
+    if (this.state.players[sessionId]){
+      var player = this.state.players[sessionId];
+
+      if (keyMsg.state === "down"){
+        if (keyMsg.keyCode === player.key_up){
+          console.log(sessionId + " pressed up.");
+          player.pos_y += 1;
+        }
+        else if (keyMsg.keyCode === player.key_left){
+          console.log(sessionId + " pressed left.");
+          player.pos_x -= 1;
+        }
+        else if (keyMsg.keyCode === player.key_down){
+          console.log(sessionId + " pressed down.");
+          player.pos_y -= 1;
+        }
+        else if (keyMsg.keyCode === player.key_right){
+          console.log(sessionId + " pressed right.");
+          player.pos_x += 1;
+        }
+        else if (keyMsg.keyCode === player.key_action){
+          console.log(sessionId + " pressed ACTION.");
+        }
+        player.printEntity();
+      }
+    }
+
+  }
 
   printRoomId(){
         console.log("\t(Room ID: " + this.roomId + ")");

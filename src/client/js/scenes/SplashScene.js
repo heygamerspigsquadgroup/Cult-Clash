@@ -4,73 +4,51 @@ export default class SplashScene extends Phaser.Scene {
   preload () {
   }
 
-  getSession(){
-    return this.room.sessionId;
-  }
-
   create () {
-    // connect
-    this.client = new Colyseus.Client('ws://localhost:2567');
-    this.room = this.client.join("my_room");
+    var client = new Colyseus.Client('ws://localhost:2567');
+    var room = client.join("my_room");
 
-    this.room.onMessage.add((message) => {
-      this.updateText(message);
+    room.onJoin.add(() => {
+      room.state.players.onAdd = (player, key) => {
+        console.log(player, "has been added at", key);
+        console.log(room.state.players[key]);
+        //add player object here
+
+        //add listener for this players position
+        player.onChange = (changes) => {
+          changes.forEach(change => {
+            if(change.field = "pos_x"){
+              console.log(key + " X: " + change.value);
+              //update position here
+            }
+            else if(change.field = "pos_y"){
+              console.log(key + " Y: " + change.value);
+              //update position here
+            }
+            //console.log(change.previousValue);
+          });
+        };
+      };
+
+      room.state.players.onRemove = (player, key) => {
+        console.log(player, "has been removed at", key);
+        // remove player object
+      };
     });
-
-    // place text elements
-    this.roomText = this.add.text(16, 16, '', { fontSize: '32px', fill: '#FFF' });
-    for(var i = 0; i < 4; i++) {
-        this.playerText[i] = this.add.text(16, 50 + 30 * i, '', { fontSize: '32px', fill: '#FFF' });
-    }
 
     // add handlers for key presses
     this.input.keyboard.on('keydown', (event) => {
-      this.keyDown(event);
+      room.send({ key: { state: "down", keyCode: event.keyCode }});
     });
 
     this.input.keyboard.on('keyup', (event) => {
-      this.keyUp(event);
+      room.send({ key: { state: "up", keyCode: event.keyCode }});
     });
   }
 
   update() {
 
   }
-
-  keyDown(event){
-    this.room.send({ press: "down", key: event.key });
-
-  }
-
-  keyUp(event){
-    this.room.send({ press: "up", key: event.key });
-  }
-
-
-  // update room name and player list
-  updateText (message) {
-    this.roomText.setText('Room: ' + message.roomId);
-
-    for(var i = 0; i < 4; i++) {
-      if (message.playerList[i]){
-        this.playerText[i].setText('Player #' + (i+1) + ": " + message.playerList[i]);
-                // color green if this is you
-        if (message.playerList[i] === this.getSession()){
-            this.playerText[i].setColor("#00ff00", 0);
-        }
-        else{
-            this.playerText[i].setColor("#ffffff", 0);
-        }
-
-      }
-      else{
-        this.playerText[i].setText('');
-      }
-    }
-  }
 }
-SplashScene.prototype.client;
-SplashScene.prototype.room;
 
-SplashScene.prototype.roomText;
-SplashScene.prototype.playerText = [];
+SplashScene.prototype.playerList = new Map();
