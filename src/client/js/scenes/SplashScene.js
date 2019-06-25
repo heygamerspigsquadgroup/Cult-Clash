@@ -1,10 +1,13 @@
 /* global Phaser */
+import Player from '../Player.js';
 
 export default class SplashScene extends Phaser.Scene {
   preload () {
+    // wtf i cant get this to load
+    this.load.image('goku', './assets/goku.png');
   }
 
-  create () {
+  create () {    
     var client = new Colyseus.Client('ws://localhost:2567');
     var room = client.join("my_room");
 
@@ -12,27 +15,31 @@ export default class SplashScene extends Phaser.Scene {
       room.state.players.onAdd = (player, key) => {
         console.log(player, "has been added at", key);
         console.log(room.state.players[key]);
+
+        this.playerList[key] = new Player();
+        this.playerList[key].sprite = this.add.sprite(player.pos_x, -1* player.pos_y, 'goku');
         //add player object here
+        console.log(this.playerList);
 
         //add listener for this players position
         player.onChange = (changes) => {
           changes.forEach(change => {
-            if(change.field = "pos_x"){
+            if(change.field === "pos_x"){
               console.log(key + " X: " + change.value);
-              //update position here
+              this.playerList[key].sprite.x = change.value;
             }
-            else if(change.field = "pos_y"){
+            if(change.field === "pos_y"){
               console.log(key + " Y: " + change.value);
-              //update position here
+              this.playerList[key].sprite.y = -1 * change.value;
             }
-            //console.log(change.previousValue);
           });
         };
       };
 
       room.state.players.onRemove = (player, key) => {
         console.log(player, "has been removed at", key);
-        // remove player object
+        this.playerList[key].sprite.destroy(); // probably make a destructor for players
+        delete this.playerList[key];
       };
     });
 
