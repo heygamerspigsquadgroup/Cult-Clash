@@ -11,7 +11,8 @@ export default class SplashScene extends Phaser.Scene {
   }
 
   create () {
-    var client = new Colyseus.Client('ws://localhost:2567');
+    const websocketUrl = window.location.hostname === 'localhost' ? 'ws://localhost:2567' : 'ws://api.' + window.location.hostname
+    var client = new Colyseus.Client(websocketUrl);
     var room = client.join('my_room');
 
     room.onJoin.add(() => {

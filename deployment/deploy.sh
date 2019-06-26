@@ -6,10 +6,12 @@ if [[ -z "$TAG" ]]; then
 fi
 
 echo "TAG=$TAG"
-apiUrl=api.$TAG.key-kalamity.com.
+frontUrl=$TAG.key-kalamity.com
 if [[ "$TAG" == "prod" ]]; then
-  apiUrl=api.key-kalamity.com.
+  frontUrl=key-kalamity.com
 fi
+apiUrl=api.$frontUrl.
+
 
 npm run build-all
 docker build -t heygamerspigsquadgroup/key-kalamity:$TAG .
@@ -101,7 +103,8 @@ if [[ -z "$status" ]]; then
                ParameterKey=ParentSSHBastionStack,ParameterValue=$TAG-vpc-ssh-bastion \
                ParameterKey=KeyName,ParameterValue=deployment \
                ParameterKey=HostName,ParameterValue=$apiUrl \
-               ParameterKey=DesiredInstances,ParameterValue=3; then
+               ParameterKey=InstanceType,ParameterValue=t2.micro \
+               ParameterKey=DesiredInstances,ParameterValue=1; then
     aws cloudformation wait stack-create-complete \
       --stack-name $TAG-ecs-cluster
   fi
@@ -115,7 +118,8 @@ else
                ParameterKey=ParentSSHBastionStack,ParameterValue=$TAG-vpc-ssh-bastion \
                ParameterKey=KeyName,ParameterValue=deployment \
                ParameterKey=HostName,ParameterValue=$apiUrl \
-               ParameterKey=DesiredInstances,ParameterValue=3; then
+               ParameterKey=InstanceType,ParameterValue=t2.micro \
+               ParameterKey=DesiredInstances,ParameterValue=1; then
     aws cloudformation wait stack-update-complete \
       --stack-name $TAG-ecs-cluster
   fi
@@ -132,7 +136,8 @@ if [[ -z "$status" ]]; then
     --parameters ParameterKey=ParentVPCStack,ParameterValue=$TAG-vpc \
                  ParameterKey=ParentECSStack,ParameterValue=$TAG-ecs-cluster \
                  ParameterKey=DockerTag,ParameterValue=heygamerspigsquadgroup/key-kalamity:$TAG \
-                 ParameterKey=DesiredInstances,ParameterValue=2; then
+                 ParameterKey=EnvTag,ParameterValue=$TAG \
+                 ParameterKey=DesiredInstances,ParameterValue=1; then
     aws cloudformation wait stack-create-complete \
       --stack-name $TAG-ecs-service
   fi
@@ -145,10 +150,40 @@ else
     --parameters ParameterKey=ParentVPCStack,ParameterValue=$TAG-vpc \
                  ParameterKey=ParentECSStack,ParameterValue=$TAG-ecs-cluster \
                  ParameterKey=DockerTag,ParameterValue=heygamerspigsquadgroup/key-kalamity:$TAG \
-                 ParameterKey=DesiredInstances,ParameterValue=2; then
+                 ParameterKey=EnvTag,ParameterValue=$TAG \
+                 ParameterKey=DesiredInstances,ParameterValue=1; then
     aws cloudformation wait stack-update-complete \
       --stack-name $TAG-ecs-service
   fi
 fi
 
-# Make cloudformation stacks for ecs, and s3 websites
+status=`aws cloudformation describe-stacks --stack-name $TAG-frontend | jq --raw-output ".Stacks[0].StackStatus"`
+
+if [[ -z "$status" ]]; then
+  # Create frontend
+  if aws cloudformation create-stack  \
+    --template-body file://./deployment/yamls/s3deploy.yaml \
+    --stack-name $TAG-frontend \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameters ParameterKey=DomainName,ParameterValue=$frontUrl \
+                 ParameterKey=FullDomainName,ParameterValue=www.$frontUrl \
+                 ParameterKey=AcmCertificateArn,ParameterValue=arn:aws:acm:us-east-1:464011207223:certificate/5f919c83-dbaf-49f0-9fb7-3e2753c7fdb1; then
+    aws cloudformation wait stack-create-complete \
+      --stack-name $TAG-frontend
+  fi
+else
+  # Create frontend
+  if aws cloudformation update-stack  \
+    --template-body file://./deployment/yamls/s3deploy.yaml \
+    --stack-name $TAG-frontend \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameters ParameterKey=DomainName,ParameterValue=$frontUrl \
+                 ParameterKey=FullDomainName,ParameterValue=www.$frontUrl \
+                 ParameterKey=AcmCertificateArn,ParameterValue=arn:aws:acm:us-east-1:464011207223:certificate/5f919c83-dbaf-49f0-9fb7-3e2753c7fdb1; then
+    aws cloudformation wait stack-update-complete \
+      --stack-name $TAG-frontend
+  fi
+fi
+
+aws s3 sync ./build/frontend s3://www.$frontUrl --delete
+aws s3 sync ./build/frontend/js s3://www.$frontUrl/js --content-type application/javascript
