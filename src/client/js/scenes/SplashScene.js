@@ -1,31 +1,63 @@
 /* global Phaser */
+/* global Phaser Colyseus */
+
+import Player from '../Player.js';
 
 export default class SplashScene extends Phaser.Scene {
   preload () {
-    this.load.setBaseURL('http://labs.phaser.io');
+    // wtf i cant get this to load
+    this.add.image('goku', './assets/goku.png');
 
-    this.load.image('sky', 'assets/skies/space3.png');
-    this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-    this.load.image('red', 'assets/particles/red.png');
+    this.playerList = new Map();
   }
 
   create () {
-    this.add.image(400, 300, 'sky');
+    var client = new Colyseus.Client('ws://localhost:2567');
+    var room = client.join('my_room');
 
-    var particles = this.add.particles('red');
+    room.onJoin.add(() => {
+      room.state.players.onAdd = (player, key) => {
+        console.log(player, 'has been added at', key);
+        console.log(room.state.players[key]);
 
-    var emitter = particles.createEmitter({
-      speed: 100,
-      scale: { start: 1, end: 0 },
-      blendMode: 'ADD'
+        this.playerList[key] = new Player();
+        this.playerList[key].sprite = this.add.sprite(player.pos_x, -1 * player.pos_y, 'goku');
+        // add player object here
+        console.log(this.playerList);
+
+        // add listener for this players position
+        player.onChange = (changes) => {
+          changes.forEach(change => {
+            if (change.field === 'pos_x') {
+              console.log(key + ' X: ' + change.value);
+              this.playerList[key].sprite.x = change.value;
+            }
+            if (change.field === 'pos_y') {
+              console.log(key + ' Y: ' + change.value);
+              this.playerList[key].sprite.y = -1 * change.value;
+            }
+          });
+        };
+      };
+
+      room.state.players.onRemove = (player, key) => {
+        console.log(player, 'has been removed at', key);
+        this.playerList[key].sprite.destroy(); // probably make a destructor for players
+        delete this.playerList[key];
+      };
     });
 
-    var logo = this.physics.add.image(400, 100, 'logo');
+    // add handlers for key presses
+    this.input.keyboard.on('keydown', (event) => {
+      room.send({ key: { state: 'down', keyCode: event.keyCode } });
+    });
 
-    logo.setVelocity(500, 200);
-    logo.setBounce(1, 1);
-    logo.setCollideWorldBounds(true);
+    this.input.keyboard.on('keyup', (event) => {
+      room.send({ key: { state: 'up', keyCode: event.keyCode } });
+    });
+  }
 
-    emitter.startFollow(logo);
+  update () {
+
   }
 }

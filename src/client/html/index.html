@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
   <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bottlejs/1.7.1/bottle.min.js"></script>
-  <script src="https://raw.githubusercontent.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
 </head>
 <body>
+  WASD to move (for now). Open multiple tabs to see syncing
   <div id="main_container"></div>
   <div id="game_container"></div>
-
   <!-- This must always happen last in the html file or things will fail. Darn you DOM Loading! -->
   <script type="module" src="js/main.js"></script>
 </body>

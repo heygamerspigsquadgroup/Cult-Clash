@@ -21,5 +21,9 @@ app.use('/', socialRoutes);
 // register colyseus monitor AFTER registering your room handlers
 app.use('/colyseus', monitor(gameServer));
 
+gameServer.onShutdown(function () {
+  console.log(`game server is going down.`);
+});
+
 gameServer.listen(port);
 console.log(`Listening on ws://localhost:${port}`);
