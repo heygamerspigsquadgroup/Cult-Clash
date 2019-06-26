@@ -1,5 +1,5 @@
 export default class Player {
-  constructor () {
-    this.sprite;
+  constructor (sprite) {
+    this.sprite = sprite;
   }
 }
