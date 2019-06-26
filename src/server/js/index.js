@@ -21,6 +21,9 @@ app.use('/', socialRoutes);
 // register colyseus monitor AFTER registering your room handlers
 app.use('/colyseus', monitor(gameServer));
 
+// register healthcheck url
+app.get('/healthcheck', (req, res) => res.send('Healthcheck Success'));
+
 gameServer.onShutdown(function () {
   console.log(`game server is going down.`);
 });
