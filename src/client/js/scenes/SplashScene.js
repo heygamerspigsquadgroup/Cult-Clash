@@ -5,8 +5,7 @@ import Player from '../Player.js';
 
 export default class SplashScene extends Phaser.Scene {
   preload () {
-    // wtf i cant get this to load
-    this.add.image('goku', './assets/goku.png');
+    this.add.image('goku', '/assets/goku.png');
 
     this.playerList = new Map();
   }
@@ -22,8 +21,6 @@ export default class SplashScene extends Phaser.Scene {
 
         this.playerList[key] = new Player();
         this.playerList[key].sprite = this.add.sprite(player.pos_x, -1 * player.pos_y, 'goku');
-        // add player object here
-        console.log(this.playerList);
 
         // add listener for this players position
         player.onChange = (changes) => {
@@ -49,11 +46,11 @@ export default class SplashScene extends Phaser.Scene {
 
     // add handlers for key presses
     this.input.keyboard.on('keydown', (event) => {
-      room.send({ key: { state: 'down', keyCode: event.keyCode } });
+      room.send({ key: { pressed: true, keyCode: event.keyCode } });
     });
 
     this.input.keyboard.on('keyup', (event) => {
-      room.send({ key: { state: 'up', keyCode: event.keyCode } });
+      room.send({ key: { pressed: false, keyCode: event.keyCode } });
     });
   }
 
