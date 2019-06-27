@@ -92,6 +92,8 @@ Outputs:
   CloudfrontEndpoint:
     Value: !GetAtt [WebsiteCloudfront, DomainName]
     Description: Endpoint for Cloudfront distribution
+  CloudfrontDistribution:
+    Value: !Ref WebsiteCloudfront 
   FullDomain:
     Value: !Ref 'FullDomainName'
     Description: Full DomainName

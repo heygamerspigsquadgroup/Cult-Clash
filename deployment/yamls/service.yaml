@@ -51,12 +51,6 @@ Resources:
               Value: !Ref EnvTag
           PortMappings:
             - ContainerPort: 80
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: !Ref 'AWS::Region'
-              awslogs-group: !Ref 'AWS::StackName'
-              awslogs-stream-prefix: !Ref 'AWS::StackName'
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -82,7 +76,7 @@ Resources:
       Conditions:
         - Field: path-pattern
           Values:
-          - '/*'
+          - '*'
       Actions:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward

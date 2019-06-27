@@ -185,5 +185,25 @@ else
   fi
 fi
 
-aws s3 sync ./build/frontend s3://www.$frontUrl --delete
-aws s3 sync ./build/frontend/js s3://www.$frontUrl/js --content-type application/javascript
+function join_by { local IFS="$1"; shift; echo "$*"; }
+filesChanged=(`aws s3 sync --delete ./build/frontend s3://www.$frontUrl`)
+aws s3 rm --recursive s3://www.$frontUrl/js
+aws s3 cp --recursive --metadata-directive REPLACE --content-type 'application/javascript' --no-guess-mime-type ./build/frontend/js s3://www.$frontUrl/js
+filesChanged=( $( for i in ${filesChanged[@]} ; do echo $i ; done | grep $frontUrl ) )
+numberOfFiles=${#filesChanged[@]}
+filesChanged=( $( for i in ${filesChanged[@]} ; do echo $i | sed "s/.*$frontUrl//" ; done ) )
+filesChanged=( $( for i in ${filesChanged[@]} ; do echo "\"$i"\" ; done ) )
+filesChanged=`join_by , "${filesChanged[@]}"`
+
+echo '{' > changed.json
+echo '  "Paths": {' >> changed.json
+echo "    \"Quantity\": $numberOfFiles," >> changed.json
+echo "    \"Items\": [$filesChanged]" >> changed.json
+echo '  },' >> changed.json
+time=`date`
+echo "  \"CallerReference\": \"my-invalidation-$time\"" >> changed.json
+echo '}' >> changed.json
+
+distId=`aws cloudformation describe-stacks --stack-name $TAG-frontend --query "Stacks[0].Outputs[?OutputKey=='CloudfrontDistribution'].OutputValue" --output text`
+echo "Distribution: $distId"
+aws cloudfront create-invalidation --distribution-id $distId --invalidation-batch file://changed.json

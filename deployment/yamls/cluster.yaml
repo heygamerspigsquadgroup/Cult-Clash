@@ -31,7 +31,7 @@ Parameters:
     Description: Number of instances to launch in your ECS cluster.
   ClusterMaxSize:
     Type: Number
-    Default: '10'
+    Default: '1'
     Description: Maximum number of instances that can be launched in your ECS cluster.
   ClusterMaxMemoryReservationPercentage:
     Type: Number
@@ -133,8 +133,10 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       LoadBalancerArn: !Ref LoadBalancer
-      Port: 80
-      Protocol: HTTP
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn:  arn:aws:acm:us-west-2:464011207223:certificate/146e94d3-0888-4039-92bf-acce0905dee0
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref DefaultTargetGroup
@@ -150,7 +152,7 @@ Resources:
   LoadBalancerRecordSet:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId:  Z17I9PPCLXNUS8
+      HostedZoneId: Z17I9PPCLXNUS8
       RecordSets:
       - Name: !Ref HostName
         Type: A
