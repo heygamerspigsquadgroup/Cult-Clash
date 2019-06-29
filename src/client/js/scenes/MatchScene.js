@@ -17,8 +17,10 @@ export default class MatchScene extends FadeableScene {
   preload () {
     this.load.image('cultist_blue', './assets/images/cultist_blue.gif');
     this.load.image('background', './assets/images/background.gif');
+    this.load.image('platform_mid', './assets/images/platform_fill.gif');
     this.load.audio('matchStart', './assets/sound/match_start.mp3');
     this.load.audio('matchLoop', './assets/sound/match_loop.mp3');
+    this.load.audio('doot', './assets/sound/doot.mp3');
     const domContainer = document.querySelector('#ui_container');
     ReactDOM.render(<MatchSceneComponent />, domContainer);
     this.playerList = new Map();
@@ -37,6 +39,7 @@ export default class MatchScene extends FadeableScene {
       .setZoom(this.game.config.width / MAP_WIDTH / 4).centerOn(MAP_WIDTH / 2, MAP_HEIGHT / 2);
     this.musicStart = this.sound.add('matchStart', { loop: false });
     this.musicLoop = this.sound.add('matchLoop', { loop: true });
+    this.dootSfx = this.sound.add('doot', { loop: false });
     this.musicStart.play();
     this.musicStart.once('complete', () => {
       this.musicLoop.play();
@@ -55,11 +58,18 @@ export default class MatchScene extends FadeableScene {
     const websocketUrl = window.location.hostname === 'localhost'
       ? 'ws://localhost:2567'
       : 'wss://api' + window.location.hostname.substring(3) + ':443';
+
     this.client = new Colyseus.Client(websocketUrl);
     this.room = this.client.join('my_room');
+
     this.room.onJoin.add(() => {
+      // populate platforms on screen
+      this.room.state.platforms.onAdd = (platform, key) => {
+        this.add.sprite(platform.pos_x, platform.pos_y, 'platform_mid');
+      };
+
       this.room.state.players.onAdd = (player, key) => {
-        let playerObj = new Player(this.add.sprite(player.pos_x, -1 * player.pos_y, 'cultist_blue'));
+        let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
 
         if (key === this.room.sessionId) {
           this.player = playerObj;
@@ -67,7 +77,7 @@ export default class MatchScene extends FadeableScene {
         }
 
         this.playerList[key] = playerObj;
-
+        // add listener for this players position
         player.onChange = changes => {
           this.playerList[key].change(changes);
         };
@@ -77,10 +87,15 @@ export default class MatchScene extends FadeableScene {
         this.playerList[key].destructor();
         delete this.playerList[key];
       };
+
+      this.room.onMessage.add((message) => {
+        if (message === 'doot') {
+          this.dootSfx.play();
+        }
+      });
     });
 
     // add handlers for key presses
-
     this.input.keyboard.on('keydown', event => {
       this.room.send({
         key: {
@@ -89,6 +104,7 @@ export default class MatchScene extends FadeableScene {
         }
       });
     });
+
     this.input.keyboard.on('keyup', event => {
       this.room.send({
         key: {

@@ -13,7 +13,7 @@ export default class Player {
         this.setX(change.value, change.previousValue);
       }
       if (change.field === 'pos_y') {
-        this.setY(-1 * change.value, change.previousValue);
+        this.setY(change.value, change.previousValue);
       }
     });
   }
