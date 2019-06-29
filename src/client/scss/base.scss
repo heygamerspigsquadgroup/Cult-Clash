@@ -1,5 +1,20 @@
 body {
-  background-color: #000000;
+  background-color: #ed044c;
+    background-image: url("../assets/images/background.gif");
+    background-repeat: repeat-x repeat-y;
+
+}
+
+canvas{
+    margin-top: 150px;
+    border-top: 4pt solid #ed044c;
+    border-right: 4pt solid #ed044c;
+    border-bottom: 4pt solid #ffaec7;
+    border-left: 4pt solid #ffaec7;
+}
+
+.overlay {
+  position: absolute;
 }
 
 .centered {
@@ -10,6 +25,21 @@ body {
   margin-right:auto;
 }
 
-.overlay {
-  position: absolute;
+
+#join_btn {
+   background: none ;
+    font-family: monospace, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    border: 1pt solid white;
+    padding: 10px 20px 10px 20px;
+}
+
+#join_btn:hover {
+    background: #ed044c;
+}
+
+#join_btn:active{
+    background: #ffaec7;
 }
