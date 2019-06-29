@@ -1,7 +1,6 @@
 /* global React */
 
 import inject from '../Injection.js';
-import { TITLE_SCENE_ID } from '../scenes/TitleScene.js';
 
 export default class MatchSceneComponent extends React.Component {
   constructor () {
@@ -12,17 +11,17 @@ export default class MatchSceneComponent extends React.Component {
   leaveGame () {
     let game = inject('game');
     game.scene.keys.matchScene.room.leave();
-    game.scene.start(TITLE_SCENE_ID);
+    game.scene.keys.matchScene.fade();
   }
 
   render () {
     return <div>
       <div className='centered'>
-        WASD to move (for now). Open multiple tabs to see syncing
+        WASD to move (for now).
       </div>
       <div className='centered'>
         <button onClick={this.leaveGame}>
-          Leave Game because it totally sucks and ain't worth it
+          Leave Game
         </button>
       </div>
     </div>;
