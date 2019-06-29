@@ -69,7 +69,7 @@ export default class MatchScene extends FadeableScene {
       };
 
       this.room.state.players.onAdd = (player, key) => {
-        let playerObj = new Player(this.add.sprite(player.pos_x, -1 * player.pos_y, 'cultist_blue'));
+        let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
 
         if (key === this.room.sessionId) {
           this.player = playerObj;
