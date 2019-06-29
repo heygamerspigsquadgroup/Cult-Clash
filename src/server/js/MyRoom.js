@@ -12,9 +12,6 @@ exports.MyRoom = class extends colyseus.Room {
     this.printRoomId();
     this.setState(new State());
 
-    this.groundCat = 0x0001;
-    this.playerCat = 0x0002;
-
     // add physics engine
     this.engine = Matter.Engine.create();    // todo: make a platform class and add objects
     
@@ -57,15 +54,10 @@ exports.MyRoom = class extends colyseus.Room {
     this.printSessionId(client);
     this.printRoomId();
 
-    //var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157, {collisionFilter: {mask: this.playerCat}});
-        var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157);
-    this.state.players[client.sessionId] = new Player(playerBody);
-    this.state.players[client.sessionId].body.inertia = Infinity;
-    this.state.players[client.sessionId].body.inverseInertia = 0;
-    this.state.players[client.sessionId].body.friction = 0;
-    console.log(this.state.players[client.sessionId].body);
+    this.state.players[client.sessionId] = new Player(400, 200);
+    var playerBody = this.state.players[client.sessionId].body;
     // add player's body to world
-    Matter.World.add(this.engine.world, this.state.players[client.sessionId].body);
+    Matter.World.add(this.engine.world, playerBody);
   }
 
   onMessage (client, message) {
@@ -97,31 +89,90 @@ exports.MyRoom = class extends colyseus.Room {
     if (this.state.players[sessionId]) {
       var player = this.state.players[sessionId];
 
+      // update held state
       if (keyMsg.keyCode === player.keyUp.keyCode) {
         player.keyUp.isHeld = keyMsg.pressed;
-        if(keyMsg.pressed){
-          //keydown
-          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -10});
-
-        }
-        else{
-                    Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
-        }
-
       } 
 
       else if (keyMsg.keyCode === player.keyLeft.keyCode) {
         player.keyLeft.isHeld = keyMsg.pressed;
+      } 
+
+      else if (keyMsg.keyCode === player.keyDown.keyCode) {
+        player.keyDown.isHeld = keyMsg.keyDown;
+      } 
+
+      else if (keyMsg.keyCode === player.keyRight.keyCode) {
+        player.keyRight.isHeld = keyMsg.pressed;
+      } 
+
+      else if (keyMsg.keyCode === player.keyAction.keyCode) {
+        player.keyAction.isHeld = keyMsg.pressed;    
+      }
+
+
+      if (keyMsg.keyCode === player.keyLeft.keyCode) {
+        if(keyMsg.pressed){
+          Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
+        }
+        else {
+          if(!player.keyRight.isHeld){
+            Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
+          }
+          else{
+            Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
+          }
+        }
+      } 
+
+      else if (keyMsg.keyCode === player.keyRight.keyCode) {
+        if(keyMsg.pressed){
+          Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
+        }
+        else{
+          if (!player.keyLeft.isHeld){
+            Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
+          }
+          else{
+            Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
+          }
+        }      
+      } 
+
+
+/*
+      if (player.keyRight.isHeld === player.keyLeft.isHeld){
+        Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
+      }
+      else if(!player.keyRight.isHeld && player.keyLeft.isHeld){
+        Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
+      }
+      else if(player.keyRight.isHeld && !player.keyLeft.isHeld){
+        Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
+      }
+*/
+
+
+/*
+      if (keyMsg.keyCode === player.keyUp.keyCode) {
+        if(keyMsg.pressed){
+          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -10});
+        }
+        else{
+          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+        }
+      } 
+
+      else if (keyMsg.keyCode === player.keyLeft.keyCode) {
         if(keyMsg.pressed){
           Matter.Body.setVelocity(player.body, {x: -5, y: player.body.velocity.y});
         }
-        else{
+        else if (!player.keyRight.pressed){
           Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
         }
       } 
 
       else if (keyMsg.keyCode === player.keyDown.keyCode) {
-        player.keyLeft.isHeld = keyMsg.keyDown;
         if(keyMsg.pressed){
           //keydown
         }
@@ -131,23 +182,22 @@ exports.MyRoom = class extends colyseus.Room {
       } 
 
       else if (keyMsg.keyCode === player.keyRight.keyCode) {
-        player.keyRight.isHeld = keyMsg.pressed;
         if(keyMsg.pressed){
           Matter.Body.setVelocity(player.body, {x: 5, y: player.body.velocity.y});
         }
-        else{
+        else if (!player.keyLeft.pressed){
           Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
         }      
       } 
 
       else if (keyMsg.keyCode === player.keyAction.keyCode) {
         if(keyMsg.pressed){
-          //keydown
         }
         else{
-          //keyup
         }      
       }
+      */
+
 
     }
   }

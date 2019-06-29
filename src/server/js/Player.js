@@ -1,9 +1,13 @@
+const Matter = require('matter-js');
 const Entity = require('./Entity').Entity;
 const Key = require('./Key').Key;
 
 class Player extends Entity {
-  constructor (matterBody) {
-    super(matterBody);    
+  constructor (x, y) {
+    super(Matter.Bodies.rectangle(x, y, 100, 150, {inertia: Infinity, inverseInertia: 0, friction: 0}));
+
+
+    this.speed = 5;
     // these may be remapped later
     this.keyUp = new Key(87); // W
     this.keyLeft = new Key(65); // A
