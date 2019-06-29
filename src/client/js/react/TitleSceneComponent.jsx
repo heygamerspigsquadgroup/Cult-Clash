@@ -1,7 +1,6 @@
 /* global React */
 
 import inject from '../Injection.js';
-import { MATCH_SCENE_ID } from '../scenes/MatchScene.js';
 
 export default class TitleSceneComponent extends React.Component {
   constructor () {
@@ -11,14 +10,23 @@ export default class TitleSceneComponent extends React.Component {
 
   playGame () {
     let game = inject('game');
-    game.scene.start(MATCH_SCENE_ID);
+    game.scene.keys.titleScene.joinGame();
+  }
+
+  currentFading() {
+    let game = inject('game');
+    return game.scene.keys.titleScene.fadePercent;
+  }
+
+  componentDidUpdate(){
+    this.setState({});
   }
 
   render () {
+    let currentFade = this.currentFading();
     return <div>
-      <span className='overlay centered' style={{ fontSize: 'xx-large', top: '200px', color: '#ed044c' }}>
-        Key Kalamity
-      </span>
+      <img src="assets/images/title_anim.gif" className='overlay centered' style={{ top: '100px', width: '600px', opacity: currentFade }}>
+      </img>
       <button className='overlay centered' style={{ top: '500px' }} onClick={this.playGame}>
         Join Game
       </button>

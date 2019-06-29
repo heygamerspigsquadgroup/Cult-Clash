@@ -4,7 +4,7 @@ import MatchScene from './scenes/MatchScene.js';
 
 export default class Config {
   constructor (scene) {
-    this.type = Phaser.AUTO;
+    this.type = Phaser.WEBGL;
     this.parent = 'game_container';
     this.width = 800;
     this.height = 600;

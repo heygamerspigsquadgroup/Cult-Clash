@@ -1,8 +1,6 @@
 export default class Player {
-  constructor (sprite, lightMap, light) {
+  constructor (sprite) {
     this.sprite = sprite;
-    this.lightMap = lightMap;
-    this.light = light;
   }
 
   destructor () {
