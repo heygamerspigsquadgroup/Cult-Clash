@@ -3,6 +3,9 @@ const Matter = require('matter-js');
 const State = require('./State').State;
 const Player = require('./Player').Player;
 const Entity = require('./Entity').Entity;
+const ColorCode = require('./ColorCode').ColorCode;
+const RuneBagConst = require('./RuneBag');
+const RuneBag = RuneBagConst.RuneBag;
 
 exports.MyRoom = class extends colyseus.Room {
   onInit (options) {
@@ -12,6 +15,17 @@ exports.MyRoom = class extends colyseus.Room {
     console.log('\nCREATING NEW ROOM');
     this.printRoomId();
     this.setState(new State());
+    this.unusedColors = [
+      new ColorCode('purple', 2200, 1750),
+      new ColorCode('blue', 800, 1750),
+      new ColorCode('green', 800, 700),
+      new ColorCode('orange', 2200, 700),
+    ];
+    let keys = this.getKeys();
+    this.leftKeys = keys[0];
+    this.rightKeys = keys[1];
+    this.upKeys = keys[2];
+    this.downKeys = keys[3];
 
     // add physics engine
     this.engine = Matter.Engine.create();
@@ -80,7 +94,10 @@ exports.MyRoom = class extends colyseus.Room {
     this.printSessionId(client);
     this.printRoomId();
 
-    this.state.players[client.sessionId] = new Player(400, 200);
+    let colorIndex = Math.floor(Math.random() * this.unusedColors.length);
+    let color = this.unusedColors[colorIndex];
+    this.unusedColors = this.unusedColors.splice(colorIndex, 1);
+    this.state.players[client.sessionId] = new Player(color);
     var playerBody = this.state.players[client.sessionId].body;
     playerBody.collisionFilter.group = this.playerGroup;
     // add player's body to world
@@ -100,6 +117,7 @@ exports.MyRoom = class extends colyseus.Room {
     this.printClientId(client);
     this.printSessionId(client);
     this.printRoomId();
+    this.unusedColors.push(this.state.players[client.sessionId].colorCode);
 
     // remove player's body from world
     Matter.World.remove(this.engine.world, this.state.players[client.sessionId].body);
@@ -183,5 +201,16 @@ exports.MyRoom = class extends colyseus.Room {
   }
   printClientId (client) {
     console.log('\t(Client ID: ' + client.id + ')');
+  }
+
+  getKeys() {
+    const SHUFFLE_COUNT = 8;
+    let keys = [RuneBagConst.MOVEMENT_SET_1, RuneBagConst.MOVEMENT_SET_2, RuneBagConst.MOVEMENT_SET_3, RuneBagConst.MOVEMENT_SET_4];
+    for(let i = 0; i < SHUFFLE_COUNT; i++) {
+      let first = Math.floor(Math.random() * keys.length);
+      let second = Math.floor(Math.random() * keys.length);
+      [keys[first], keys[second]] = [keys[second], keys[first]];
+    }
+    return keys;
   }
 };
