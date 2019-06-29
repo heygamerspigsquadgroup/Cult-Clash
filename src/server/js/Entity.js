@@ -1,7 +1,6 @@
 const schema = require('@colyseus/schema');
 const Schema = schema.Schema;
 const type = schema.type;
-const Matter = require('matter-js');
 
 class Entity extends Schema {
   constructor (matterBody) {
@@ -17,7 +16,5 @@ class Entity extends Schema {
 }
 type('number')(Entity.prototype, 'pos_x');
 type('number')(Entity.prototype, 'pos_y');
-Entity.prototype.body; 
-
 
 exports.Entity = Entity;

@@ -4,10 +4,10 @@ const Key = require('./Key').Key;
 
 class Player extends Entity {
   constructor (x, y) {
-    var playerBody = Matter.Bodies.rectangle(x, y, 100, 150, {inertia: Infinity, inverseInertia: 0, friction: 0});
-    //var floorSensor = Matter.Bodies.circle(x, y + 10, 2,{density:0, friction:0, isSensor: true});
+    var playerBody = Matter.Bodies.rectangle(x, y, 100, 150, { inertia: Infinity, inverseInertia: 0, friction: 0 });
+    // var floorSensor = Matter.Bodies.circle(x, y + 10, 2,{density:0, friction:0, isSensor: true});
 
-    //super(Matter.Body.create({parts: [playerBody, floorSensor], friction:0}));
+    // super(Matter.Body.create({parts: [playerBody, floorSensor], friction:0}));
     super(playerBody);
     this.speed = 8;
     // these may be remapped later

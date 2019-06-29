@@ -16,7 +16,7 @@ exports.MyRoom = class extends colyseus.Room {
     // add physics engine
     this.engine = Matter.Engine.create();
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
-    
+
     this.addPlatform(25, 575);
     this.addPlatform(75, 575);
     this.addPlatform(125, 575);
@@ -42,38 +42,36 @@ exports.MyRoom = class extends colyseus.Room {
     this.addPlatform(575, 475);
     this.addPlatform(625, 475);
 
-
     // so players dont collide w each other
     this.playerGroup = Matter.Body.nextGroup(true);
 
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
-        var pairs = event.pairs;
+      var pairs = event.pairs;
 
-        // just detects if player body collided with SOMETHING. make sure its ground later
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i];
+      // just detects if player body collided with SOMETHING. make sure its ground later
+      for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i];
 
-            Object.keys(this.state.players).forEach(key => {
-              var player = this.state.players[key];
+        Object.keys(this.state.players).forEach(key => {
+          var player = this.state.players[key];
 
-              if (pair.bodyA.id === player.body.id || pair.bodyB.id === player.body.id){
-                console.log("player collided");
-                player.isJumping = false;
-              }
-            });
-        }
+          if (pair.bodyA.id === player.body.id || pair.bodyB.id === player.body.id) {
+            console.log('player collided');
+            player.isJumping = false;
+          }
+        });
+      }
     });
-
 
     // setup update loop
     this.clock.setInterval(() => {
-        Matter.Engine.update(this.engine, 1000 / this.fps);
+      Matter.Engine.update(this.engine, 1000 / this.fps);
 
-        Object.keys(this.state.players).forEach(key => {
-          // update pos_x, pos_y to new physics-calculated position
-          this.state.players[key].pos_x = this.state.players[key].body.position.x;
-          this.state.players[key].pos_y = this.state.players[key].body.position.y;
-        });
+      Object.keys(this.state.players).forEach(key => {
+        // update pos_x, pos_y to new physics-calculated position
+        this.state.players[key].pos_x = this.state.players[key].body.position.x;
+        this.state.players[key].pos_y = this.state.players[key].body.position.y;
+      });
     }, 1000 / this.fps);
   }
 
@@ -122,71 +120,55 @@ exports.MyRoom = class extends colyseus.Room {
       // update held state
       if (keyMsg.keyCode === player.keyUp.keyCode) {
         player.keyUp.isHeld = keyMsg.pressed;
-      } 
-
-      else if (keyMsg.keyCode === player.keyLeft.keyCode) {
+      } else if (keyMsg.keyCode === player.keyLeft.keyCode) {
         player.keyLeft.isHeld = keyMsg.pressed;
-      } 
-
-      else if (keyMsg.keyCode === player.keyDown.keyCode) {
+      } else if (keyMsg.keyCode === player.keyDown.keyCode) {
         player.keyDown.isHeld = keyMsg.keyDown;
-      } 
-
-      else if (keyMsg.keyCode === player.keyRight.keyCode) {
+      } else if (keyMsg.keyCode === player.keyRight.keyCode) {
         player.keyRight.isHeld = keyMsg.pressed;
-      } 
-
-      else if (keyMsg.keyCode === player.keyAction.keyCode) {
-        player.keyAction.isHeld = keyMsg.pressed;    
+      } else if (keyMsg.keyCode === player.keyAction.keyCode) {
+        player.keyAction.isHeld = keyMsg.pressed;
       }
 
-
       if (player.keyUp.isHeld) {
-          if(!player.isJumping){
-            Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -18});
-            player.isJumping = true;
-          }
-        else{
+        if (!player.isJumping) {
+          Matter.Body.setVelocity(player.body, { x: player.body.velocity.x, y: -18 });
+          player.isJumping = true;
+        } else {
 
-          //Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
-          //cant control jump height, but doesnt have weird stopping thing
+          // Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+          // cant control jump height, but doesnt have weird stopping thing
         }
-      } 
+      }
 
       if (keyMsg.keyCode === player.keyLeft.keyCode) {
-        if(keyMsg.pressed){
-          Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
-        }
-        else {
-          if(!player.keyRight.isHeld){
-            Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
-          }
-          else{
-            Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
+        if (keyMsg.pressed) {
+          Matter.Body.setVelocity(player.body, { x: -1 * player.speed, y: player.body.velocity.y });
+        } else {
+          if (!player.keyRight.isHeld) {
+            Matter.Body.setVelocity(player.body, { x: 0, y: player.body.velocity.y });
+          } else {
+            Matter.Body.setVelocity(player.body, { x: player.speed, y: player.body.velocity.y });
           }
         }
-      } 
-
-      else if (keyMsg.keyCode === player.keyRight.keyCode) {
-        if(keyMsg.pressed){
-          Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
+      } else if (keyMsg.keyCode === player.keyRight.keyCode) {
+        if (keyMsg.pressed) {
+          Matter.Body.setVelocity(player.body, { x: player.speed, y: player.body.velocity.y });
+        } else {
+          if (!player.keyLeft.isHeld) {
+            Matter.Body.setVelocity(player.body, { x: 0, y: player.body.velocity.y });
+          } else {
+            Matter.Body.setVelocity(player.body, { x: -1 * player.speed, y: player.body.velocity.y });
+          }
         }
-        else{
-          if (!player.keyLeft.isHeld){
-            Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
-          }
-          else{
-            Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
-          }
-        }      
       }
     }
   }
 
   // add a platform object to list
-  addPlatform(x, y) {
+  addPlatform (x, y) {
     // fix platform gif size
-    var platform = new Entity(Matter.Bodies.rectangle(x, y, 50, 50, { isStatic: true}));
+    var platform = new Entity(Matter.Bodies.rectangle(x, y, 50, 50, { isStatic: true }));
     Matter.World.add(this.engine.world, platform.body);
     this.state.platforms.push(platform);
   }

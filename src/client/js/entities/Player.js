@@ -6,7 +6,7 @@ export default class Player {
   destructor () {
     this.sprite.destroy();
   }
-  
+
   change (changes) {
     changes.forEach(change => {
       if (change.field === 'pos_x') {

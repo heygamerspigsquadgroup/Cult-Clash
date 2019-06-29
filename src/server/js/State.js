@@ -32,5 +32,4 @@ type({ map: Player })(State.prototype, 'players');
 type('uint16')(State.prototype, 'width');
 type('uint16')(State.prototype, 'height');
 
-
 exports.State = State;

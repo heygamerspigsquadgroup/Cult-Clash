@@ -70,7 +70,7 @@ export default class MatchScene extends FadeableScene {
         this.playerList[key] = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
 
         // add listener for this players position
-         player.onChange = changes => {
+        player.onChange = changes => {
           this.playerList[key].change(changes);
         };
       };
