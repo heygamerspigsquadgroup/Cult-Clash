@@ -7,7 +7,7 @@ export default class Player {
     this.sprite.destroy();
   }
 
-  change(changes) {
+  change (changes) {
     changes.forEach(change => {
       if (change.field === 'pos_x') {
         this.setX(change.value, change.previousValue);

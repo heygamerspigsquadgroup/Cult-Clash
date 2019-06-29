@@ -1,4 +1,4 @@
-/* global Phaser Colyseus ReactDOM */
+/* global Colyseus ReactDOM */
 
 import Player from '../entities/Player.js';
 import MatchSceneComponent from '../react/MatchSceneComponent.js';
@@ -10,21 +10,21 @@ export const MAP_WIDTH = 3200;
 export const MAP_HEIGHT = 2400;
 
 export default class MatchScene extends FadeableScene {
-  constructor() {
+  constructor () {
     super(MATCH_SCENE_ID, 5000, TITLE_SCENE_ID);
   }
 
-  preload() {
+  preload () {
     this.load.image('cultist_blue', './assets/images/cultist_blue.gif');
     this.load.image('background', './assets/images/background.gif');
     this.load.audio('matchStart', './assets/sound/match_start.mp3');
     this.load.audio('matchLoop', './assets/sound/match_loop.mp3');
     const domContainer = document.querySelector('#ui_container');
-    ReactDOM.render(React.createElement(MatchSceneComponent, null), domContainer);
+    ReactDOM.render(<MatchSceneComponent />, domContainer);
     this.playerList = new Map();
   }
 
-  create() {
+  create () {
     this.background = this.add.tileSprite(0, 0, 3200, 2400, 'background');
     this.background.setOrigin(0, 0);
     this.background.setAlpha(0.7);
@@ -35,8 +35,8 @@ export default class MatchScene extends FadeableScene {
       MINIMAP_OFFSET + this.game.config.width / 4, MINIMAP_OFFSET + this.game.config.height / 4)
       .setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT).setName('minimap')
       .setZoom(this.game.config.width / MAP_WIDTH / 4).centerOn(MAP_WIDTH / 2, MAP_HEIGHT / 2);
-    this.musicStart = this.sound.add('matchStart', {loop: false});
-    this.musicLoop = this.sound.add('matchLoop', {loop: true});
+    this.musicStart = this.sound.add('matchStart', { loop: false });
+    this.musicLoop = this.sound.add('matchLoop', { loop: true });
     this.musicStart.play();
     this.musicStart.once('complete', () => {
       this.musicLoop.play();
@@ -52,9 +52,9 @@ export default class MatchScene extends FadeableScene {
       this.musicLoop.stop();
     });
 
-    const websocketUrl = window.location.hostname === 'localhost' ?
-      'ws://localhost:2567' :
-      'wss://api' + window.location.hostname.substring(3) + ':443';
+    const websocketUrl = window.location.hostname === 'localhost'
+      ? 'ws://localhost:2567'
+      : 'wss://api' + window.location.hostname.substring(3) + ':443';
     this.client = new Colyseus.Client(websocketUrl);
     this.room = this.client.join('my_room');
     this.room.onJoin.add(() => {
@@ -99,7 +99,7 @@ export default class MatchScene extends FadeableScene {
     });
   }
 
-  update(time, delta) {
+  update (time, delta) {
     super.update(time, delta);
   }
 }

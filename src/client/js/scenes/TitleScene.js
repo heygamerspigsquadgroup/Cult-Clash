@@ -1,4 +1,4 @@
-/* global Phaser ReactDOM */
+/* global ReactDOM */
 
 import TitleSceneComponent from '../react/TitleSceneComponent.js';
 import FadeableScene from './FadeableScene.js';
@@ -19,8 +19,8 @@ export default class TitleScene extends FadeableScene {
   }
 
   create () {
-    this.musicStart = this.sound.add('titleStart', {loop: false});
-    this.musicLoop = this.sound.add('titleLoop', {loop: true});
+    this.musicStart = this.sound.add('titleStart', { loop: false });
+    this.musicLoop = this.sound.add('titleLoop', { loop: true });
     this.musicStart.play();
     this.musicStart.once('complete', () => {
       this.musicLoop.play();
@@ -42,7 +42,7 @@ export default class TitleScene extends FadeableScene {
     super.update(time, delta);
   }
 
-  joinGame() {
+  joinGame () {
     this.fade();
   }
 }
