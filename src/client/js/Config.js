@@ -1,4 +1,6 @@
 /* global Phaser */
+import TitleScene from './scenes/TitleScene.js';
+import MatchScene from './scenes/MatchScene.js';
 
 export default class Config {
   constructor (scene) {
@@ -12,6 +14,6 @@ export default class Config {
         gravity: { y: 200 }
       }
     };
-    this.scene = scene;
+    this.scene = [TitleScene, MatchScene];
   }
 }

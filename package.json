@@ -18,6 +18,7 @@
     "@babel/preset-react": "^7.0.0",
     "@colyseus/loadtest": "^0.10.1",
     "cpy-cli": "^2.0.0",
+    "cross-env": "^5.2.0",
     "del-cli": "^2.0.0",
     "http-server": "^0.11.1",
     "markserv": "^1.17.2",
@@ -25,6 +26,7 @@
     "npm-watch": "^0.6.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "sass": "^1.22.1",
     "semistandard": "^13.0.1",
     "tslib": "^1.10.0"
   },
@@ -33,7 +35,7 @@
       "patterns": [
         "src"
       ],
-      "extensions": "js,jsx,html,scss"
+      "extensions": "js,jsx,html,scss,png"
     }
   },
   "semistandard": {
@@ -48,16 +50,19 @@
     "light-clean": "del-cli build",
     "clean": "npm run light-clean && del-cli node_modules -f",
     "build": "npm-watch build-all",
-    "build-all": "npm-run-all -p build-frontend-babel build-frontend-html build-backend-js build-backend-html",
+    "build-all": "npm-run-all -p build-frontend-babel build-frontend-html build-frontend-assets build-frontend-scss build-backend-js build-backend-html",
     "build-frontend-babel": "babel --presets @babel/preset-react src/client/js --out-dir build/frontend/js --copy-files",
     "build-frontend-html": "cpy src/client/html/*.html build/frontend",
+    "build-frontend-assets": "cpy src/client/assets/* build/frontend/assets",
+    "build-frontend-scss": "sass src/client/scss:build/frontend/css",
     "build-backend-js": "cpy src/server/js/*.js build/backend",
     "build-backend-html": "cpy src/server/html/*.html build/backend",
     "prestart-dev": "npm-run-all -s light-clean build-all",
     "start-dev": "npm-run-all -p build start-dev-frontend start-dev-backend",
     "start-dev-frontend": "http-server -c-1 -p 8080 build/frontend -o http://localhost:8080/index.html",
     "start-dev-backend": "cd build/backend && node index.js",
-    "readme": "markserv README.md"
+    "readme": "markserv README.md",
+    "start": "node index.js"
   },
   "author": "",
   "license": "MIT"

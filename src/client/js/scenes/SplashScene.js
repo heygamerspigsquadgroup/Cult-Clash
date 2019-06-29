@@ -1,17 +1,19 @@
-/* global Phaser */
 /* global Phaser Colyseus */
 
 import Player from '../Player.js';
 
 export default class SplashScene extends Phaser.Scene {
   preload () {
-    this.add.image('goku', '/assets/goku.png');
+    this.load.image('cultist', './assets/cultist.png');
 
     this.playerList = new Map();
   }
 
   create () {
-    var client = new Colyseus.Client('ws://localhost:2567');
+    const websocketUrl = window.location.hostname === 'localhost'
+      ? 'ws://localhost:2567'
+      : 'wss://api' + window.location.hostname.substring(3) + ':443';
+    var client = new Colyseus.Client(websocketUrl);
     var room = client.join('my_room');
 
     room.onJoin.add(() => {
