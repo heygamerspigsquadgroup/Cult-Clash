@@ -12,12 +12,32 @@ exports.MyRoom = class extends colyseus.Room {
     this.printRoomId();
     this.setState(new State());
 
+    this.groundCat = 0x0001;
+    this.playerCat = 0x0002;
+
     // add physics engine
     this.engine = Matter.Engine.create();    // todo: make a platform class and add objects
-    Matter.World.add(this.engine.world, Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true }));
+    
+    //this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true , collisionFilter: {mask: this.groundCat}});
+    this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+    Matter.World.add(this.engine.world, this.ground);
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
 
-    
+
+//collisionFilter: {mask: defaultCategory | redCategory};
+    Matter.Events.on(this.engine, 'collisionStart', function(event) {
+      console.log("COLLISION!!");
+        let a = event.pairs.bodyA;
+        let b = event.pairs.bodyB;
+
+        console.log(event);
+        console.log(a);
+        console.log(b);
+
+
+        // check bodies, do whatever...
+    });
+
 
     // setup update loop
     this.clock.setInterval(() => {
@@ -37,8 +57,8 @@ exports.MyRoom = class extends colyseus.Room {
     this.printSessionId(client);
     this.printRoomId();
 
-    var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157);
-    console.log(playerBody);
+    //var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157, {collisionFilter: {mask: this.playerCat}});
+        var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157);
     this.state.players[client.sessionId] = new Player(playerBody);
     this.state.players[client.sessionId].body.inertia = Infinity;
     this.state.players[client.sessionId].body.inverseInertia = 0;
