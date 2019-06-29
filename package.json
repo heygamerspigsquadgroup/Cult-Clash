@@ -34,7 +34,7 @@
       "patterns": [
         "src"
       ],
-      "extensions": "js,jsx,html,scss,png"
+      "extensions": "js,jsx,html,scss,png,gif"
     }
   },
   "semistandard": {

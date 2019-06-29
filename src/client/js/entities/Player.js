@@ -1,26 +1,31 @@
 export default class Player {
-  constructor (sprite) {
+  constructor (sprite, lightMap, light) {
     this.sprite = sprite;
-    this.prevX = sprite.x;
+    this.lightMap = lightMap;
+    this.light = light;
   }
 
   destructor () {
     this.sprite.destroy();
   }
 
-  setX (x) {
-    this.sprite.x = x;
-    if (this.prevX > x) {
-      // turn left
-      this.sprite.flipX = false;
-    } else if (this.prevX < x) {
-      // turn right
-      this.sprite.flipX = true;
-    }
-    this.prevX = x;
+  change(changes) {
+    changes.forEach(change => {
+      if (change.field === 'pos_x') {
+        this.setX(change.value, change.previousValue);
+      }
+      if (change.field === 'pos_y') {
+        this.setY(-1 * change.value, change.previousValue);
+      }
+    });
   }
 
-  setY (y) {
+  setX (x, prevX) {
+    this.sprite.x = x;
+    this.sprite.flipX = (x === prevX ? this.sprite.flipX : x > prevX);
+  }
+
+  setY (y, prevY) {
     this.sprite.y = y;
   }
 }

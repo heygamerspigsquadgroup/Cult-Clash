@@ -10,7 +10,6 @@ export default class TitleScene extends Phaser.Scene {
   }
 
   preload () {
-    this.cameras.main.setBackgroundColor('#141324');
     this.load.image('cultist', './assets/cultist.png');
     const domContainer = document.querySelector('#ui_container');
     ReactDOM.render(<TitleSceneComponent />, domContainer);
