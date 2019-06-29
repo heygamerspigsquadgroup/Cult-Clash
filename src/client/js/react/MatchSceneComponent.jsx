@@ -1,8 +1,6 @@
 /* global React */
 
 import inject from '../Injection.js';
-import { TITLE_SCENE_ID } from '../scenes/TitleScene.js';
-import { MATCH_SCENE_ID } from '../scenes/MatchScene.js';
 
 export default class MatchSceneComponent extends React.Component {
   constructor () {
@@ -13,8 +11,7 @@ export default class MatchSceneComponent extends React.Component {
   leaveGame () {
     let game = inject('game');
     game.scene.keys.matchScene.room.leave();
-    game.scene.stop(MATCH_SCENE_ID);
-    game.scene.start(TITLE_SCENE_ID);
+    game.scene.keys.matchScene.fade();
   }
 
   render () {

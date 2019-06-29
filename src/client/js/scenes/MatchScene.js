@@ -1,19 +1,24 @@
 /* global Phaser Colyseus ReactDOM */
+
 import Player from '../entities/Player.js';
 import MatchSceneComponent from '../react/MatchSceneComponent.js';
+import FadeableScene from './FadeableScene.js';
+import { TITLE_SCENE_ID } from '../scenes/TitleScene.js';
 
 export const MATCH_SCENE_ID = 'matchScene';
 export const MAP_WIDTH = 3200;
 export const MAP_HEIGHT = 2400;
 
-export default class MatchScene extends Phaser.Scene {
+export default class MatchScene extends FadeableScene {
   constructor() {
-    super(MATCH_SCENE_ID);
+    super(MATCH_SCENE_ID, 5000, TITLE_SCENE_ID);
   }
 
   preload() {
     this.load.image('cultist_blue', './assets/images/cultist_blue.gif');
     this.load.image('background', './assets/images/background.gif');
+    this.load.audio('matchStart', './assets/sound/match_start.mp3');
+    this.load.audio('matchLoop', './assets/sound/match_loop.mp3');
     const domContainer = document.querySelector('#ui_container');
     ReactDOM.render(React.createElement(MatchSceneComponent, null), domContainer);
     this.playerList = new Map();
@@ -22,13 +27,30 @@ export default class MatchScene extends Phaser.Scene {
   create() {
     this.background = this.add.tileSprite(0, 0, 3200, 2400, 'background');
     this.background.setOrigin(0, 0);
+    this.background.setAlpha(0.7);
 
     this.cameras.main.fadeIn(2000);
     const MINIMAP_OFFSET = 10;
-    this.cameras.add(MINIMAP_OFFSET, MINIMAP_OFFSET,
+    this.minimap = this.cameras.add(MINIMAP_OFFSET, MINIMAP_OFFSET,
       MINIMAP_OFFSET + this.game.config.width / 4, MINIMAP_OFFSET + this.game.config.height / 4)
       .setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT).setName('minimap')
       .setZoom(this.game.config.width / MAP_WIDTH / 4).centerOn(MAP_WIDTH / 2, MAP_HEIGHT / 2);
+    this.musicStart = this.sound.add('matchStart', {loop: false});
+    this.musicLoop = this.sound.add('matchLoop', {loop: true});
+    this.musicStart.play();
+    this.musicStart.once('complete', () => {
+      this.musicLoop.play();
+    });
+    this.addFadeStarter(() => this.cameras.main.fadeOut(this.fadeTime));
+    this.addFadeStarter(() => this.minimap.fadeOut(this.fadeTime));
+    this.addFadeUpdater((fadePercent) => {
+      this.musicStart.setVolume(fadePercent);
+      this.musicLoop.setVolume(fadePercent);
+    });
+    this.addFadeEnder(() => {
+      this.musicStart.stop();
+      this.musicLoop.stop();
+    });
 
     const websocketUrl = window.location.hostname === 'localhost' ?
       'ws://localhost:2567' :
@@ -77,8 +99,7 @@ export default class MatchScene extends Phaser.Scene {
     });
   }
 
-  update() {
-    var a = 0;
+  update(time, delta) {
+    super.update(time, delta);
   }
-
 }

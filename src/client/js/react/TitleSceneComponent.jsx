@@ -18,16 +18,12 @@ export default class TitleSceneComponent extends React.Component {
     return game.scene.keys.titleScene.fadePercent;
   }
 
-  componentDidUpdate(){
-    this.setState({});
-  }
-
   render () {
     let currentFade = this.currentFading();
     return <div>
       <img src="assets/images/title_anim.gif" className='overlay centered' style={{ top: '100px', width: '600px', opacity: currentFade }}>
       </img>
-      <button className='overlay centered' style={{ top: '500px' }} onClick={this.playGame}>
+      <button className='overlay centered' style={{ top: '500px', opacity: currentFade }} onClick={this.playGame}>
         Join Game
       </button>
     </div>;
