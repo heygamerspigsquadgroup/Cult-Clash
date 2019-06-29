@@ -10,6 +10,8 @@ class Player extends Entity {
     this.keyDown = new Key(83); // S
     this.keyRight = new Key(68); // D
     this.keyAction = new Key(32); // SPACE
+
+    this.isJumping = false;
   }
 }
 

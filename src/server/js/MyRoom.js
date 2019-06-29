@@ -13,10 +13,11 @@ exports.MyRoom = class extends colyseus.Room {
     this.setState(new State());
 
     // add physics engine
-    this.engine = Matter.Engine.create();
-    // todo: make a platform class and add objects
+    this.engine = Matter.Engine.create();    // todo: make a platform class and add objects
     Matter.World.add(this.engine.world, Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true }));
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
+
+    
 
     // setup update loop
     this.clock.setInterval(() => {
@@ -36,11 +37,12 @@ exports.MyRoom = class extends colyseus.Room {
     this.printSessionId(client);
     this.printRoomId();
 
-    var playerBody = Matter.Bodies.rectangle(400, 200, 40, 40);
+    var playerBody = Matter.Bodies.rectangle(400, 200, 157, 157);
+    console.log(playerBody);
     this.state.players[client.sessionId] = new Player(playerBody);
-    this.state.players[client.sessionId].body.mass = 10;
     this.state.players[client.sessionId].body.inertia = Infinity;
-    this.state.players[client.sessionId].body.slop = 0;
+    this.state.players[client.sessionId].body.inverseInertia = 0;
+    this.state.players[client.sessionId].body.friction = 0;
     console.log(this.state.players[client.sessionId].body);
     // add player's body to world
     Matter.World.add(this.engine.world, this.state.players[client.sessionId].body);
@@ -75,39 +77,58 @@ exports.MyRoom = class extends colyseus.Room {
     if (this.state.players[sessionId]) {
       var player = this.state.players[sessionId];
 
-      // update keypress state
       if (keyMsg.keyCode === player.keyUp.keyCode) {
         player.keyUp.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyLeft.keyCode) {
+        if(keyMsg.pressed){
+          //keydown
+          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -10});
+
+        }
+        else{
+                    Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+        }
+
+      } 
+
+      else if (keyMsg.keyCode === player.keyLeft.keyCode) {
         player.keyLeft.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyDown.keyCode) {
-        player.keyDown.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyRight.keyCode) {
+        if(keyMsg.pressed){
+          Matter.Body.setVelocity(player.body, {x: -5, y: player.body.velocity.y});
+        }
+        else{
+          Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
+        }
+      } 
+
+      else if (keyMsg.keyCode === player.keyDown.keyCode) {
+        player.keyLeft.isHeld = keyMsg.keyDown;
+        if(keyMsg.pressed){
+          //keydown
+        }
+        else{
+          //keyup
+        }      
+      } 
+
+      else if (keyMsg.keyCode === player.keyRight.keyCode) {
         player.keyRight.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyAction.keyCode) {
-        player.keyAction.isHeld = keyMsg.pressed;
+        if(keyMsg.pressed){
+          Matter.Body.setVelocity(player.body, {x: 5, y: player.body.velocity.y});
+        }
+        else{
+          Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
+        }      
+      } 
+
+      else if (keyMsg.keyCode === player.keyAction.keyCode) {
+        if(keyMsg.pressed){
+          //keydown
+        }
+        else{
+          //keyup
+        }      
       }
 
-      var speed = 3;
-      // update position
-      if (player.keyUp.isHeld) {
-        //player.pos_y -= speed;
-      }
-      if (player.keyLeft.isHeld) {
-        //Matter.Body.applyForce( player.body, {x: player.body.position.x, y: player.body.position.y}, {x: -0.005, y: 0});
-        Matter.Body.setVelocity(player.body, {x: -5, y: 0})
-        //player.body.setVelocityX(-5);
-        //player.pos_x -= speed;
-      }
-      if (player.keyDown.isHeld) {
-        //player.pos_y += speed;
-      }
-      if (player.keyRight.isHeld) {
-                Matter.Body.setVelocity(player.body, {x: 5, y: 0})
-        //Matter.Body.applyForce( player.body, {x: player.body.position.x, y: player.body.position.y}, {x: 0.005, y: 0});
-        //player.body.setVelocityX(-5);
-        //player.pos_x += speed;
-      }
     }
   }
 

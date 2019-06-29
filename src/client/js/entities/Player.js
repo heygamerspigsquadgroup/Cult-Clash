@@ -1,23 +1,15 @@
 export default class Player {
   constructor (sprite) {
     this.sprite = sprite;
-    this.prevX = sprite.x;
   }
 
   destructor () {
     this.sprite.destroy();
   }
 
-  setX (x) {
-    this.sprite.x = x;
-    if (this.prevX > x) {
-      // turn left
-      this.sprite.flipX = false;
-    } else if (this.prevX < x) {
-      // turn right
-      this.sprite.flipX = true;
-    }
-    this.prevX = x;
+  setX (x, prevX) {
+      this.sprite.x = x;
+      this.sprite.flipX = (x === prevX ? this.sprite.flipX : Math.floor(x) > Math.floor(prevX));
   }
 
   setY (y) {
