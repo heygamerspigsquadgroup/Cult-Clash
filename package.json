@@ -34,7 +34,7 @@
       "patterns": [
         "src"
       ],
-      "extensions": "js,jsx,html,scss,png"
+      "extensions": "js,jsx,html,scss,png,gif"
     }
   },
   "semistandard": {
@@ -52,7 +52,7 @@
     "build-all": "npm-run-all -p build-frontend-babel build-frontend-html build-frontend-assets build-frontend-scss build-backend-js build-backend-html",
     "build-frontend-babel": "babel --presets @babel/preset-react src/client/js --out-dir build/frontend/js --copy-files",
     "build-frontend-html": "cpy src/client/html/*.html build/frontend",
-    "build-frontend-assets": "cpy src/client/assets/* build/frontend/assets",
+    "build-frontend-assets": "cpy --cwd=src/client assets/** ../../build/frontend --parents",
     "build-frontend-scss": "sass src/client/scss:build/frontend/css",
     "build-backend-js": "cpy src/server/js/*.js build/backend",
     "build-backend-html": "cpy src/server/html/*.html build/backend",
