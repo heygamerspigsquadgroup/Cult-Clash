@@ -56,7 +56,6 @@ exports.MyRoom = class extends colyseus.Room {
           var player = this.state.players[key];
 
           if (pair.bodyA.id === player.body.id || pair.bodyB.id === player.body.id) {
-            console.log('player collided');
             player.isJumping = false;
           }
         });
@@ -127,6 +126,9 @@ exports.MyRoom = class extends colyseus.Room {
       } else if (keyMsg.keyCode === player.keyRight.keyCode) {
         player.keyRight.isHeld = keyMsg.pressed;
       } else if (keyMsg.keyCode === player.keyAction.keyCode) {
+        if (keyMsg.pressed && !player.keyAction.isHeld) {
+          this.broadcast('doot');
+        }
         player.keyAction.isHeld = keyMsg.pressed;
       }
 
