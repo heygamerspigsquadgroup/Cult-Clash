@@ -2,9 +2,8 @@ const Entity = require('./Entity').Entity;
 const Key = require('./Key').Key;
 
 class Player extends Entity {
-  constructor (x = 0, y = 0) {
-    super(x, y);
-
+  constructor (matterBody) {
+    super(matterBody);    
     // these may be remapped later
     this.keyUp = new Key(87); // W
     this.keyLeft = new Key(65); // A
@@ -15,5 +14,4 @@ class Player extends Entity {
 }
 
 // other possible properties: weight, sprite, collision flag, etc
-
 exports.Player = Player;

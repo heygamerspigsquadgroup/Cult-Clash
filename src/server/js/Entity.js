@@ -1,12 +1,14 @@
 const schema = require('@colyseus/schema');
 const Schema = schema.Schema;
 const type = schema.type;
+const Matter = require('matter-js');
 
 class Entity extends Schema {
-  constructor (x = 0, y = 0) {
+  constructor (matterBody) {
     super();
-    this.pos_x = x;
-    this.pos_y = y;
+    this.body = matterBody;
+    this.pos_x = this.body.position.x;
+    this.pos_y = this.body.position.y;
   }
 
   printEntity () {
@@ -15,6 +17,7 @@ class Entity extends Schema {
 }
 type('number')(Entity.prototype, 'pos_x');
 type('number')(Entity.prototype, 'pos_y');
-// other possible properties: weight, sprite, collision flag, etc
+Entity.prototype.body; 
+
 
 exports.Entity = Entity;

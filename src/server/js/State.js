@@ -20,6 +20,11 @@ class State extends Schema {
     });
   }
 }
+// player list
 type({ map: Player })(State.prototype, 'players');
+// map dimensions
+type('uint16')(State.prototype, 'width');
+type('uint16')(State.prototype, 'height');
+
 
 exports.State = State;
