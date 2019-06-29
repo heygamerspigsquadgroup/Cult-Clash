@@ -13,26 +13,62 @@ exports.MyRoom = class extends colyseus.Room {
     this.setState(new State());
 
     // add physics engine
-    this.engine = Matter.Engine.create();    // todo: make a platform class and add objects
-    
-    //this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true , collisionFilter: {mask: this.groundCat}});
-    this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-    Matter.World.add(this.engine.world, this.ground);
+    this.engine = Matter.Engine.create();
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
+    
+    this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true});
+    Matter.World.add(this.engine.world, this.ground);
 
+    this.playerGroup = Matter.Body.nextGroup(true);
 
-//collisionFilter: {mask: defaultCategory | redCategory};
-    Matter.Events.on(this.engine, 'collisionStart', function(event) {
+/*    Matter.Events.on(this.engine, 'collisionStart', function(event) {
       console.log("COLLISION!!");
         let a = event.pairs.bodyA;
         let b = event.pairs.bodyB;
 
-        console.log(event);
         console.log(a);
         console.log(b);
 
 
         // check bodies, do whatever...
+    });*/
+
+  /*Matter.Events.on(this.engine, 'collisionStart', (event) => {
+      console.log("COLLISION!");
+      var pairs = event.pairs;
+      
+      for (var i = 0, j = pairs.length; i != j; ++i) {
+          var pair = pairs[i];
+          console.log(pair.bodyA);
+          console.log(pair.bodyB);
+   
+        Object.keys(this.state.players).forEach(key => {
+          if (pair.bodyA === this.state.players[key].floorSensor){
+            console.log("floor sensor was body A");
+          }
+          else if (pair.bodyB === this.state.players[key].floorSensor){
+            console.log("floor sensor was body B");
+          }
+        });
+      }
+  })*/
+
+    Matter.Events.on(this.engine, 'collisionStart', (event) => {
+        var pairs = event.pairs;
+
+        // just detects if player body collided with SOMETHING. make sure its ground later
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i];
+
+            Object.keys(this.state.players).forEach(key => {
+              var player = this.state.players[key];
+
+              if (pair.bodyA.id === player.body.id || pair.bodyB.id === player.body.id){
+                console.log("player collided");
+                player.isJumping = false;
+              }
+            });
+        }
     });
 
 
@@ -56,6 +92,7 @@ exports.MyRoom = class extends colyseus.Room {
 
     this.state.players[client.sessionId] = new Player(400, 200);
     var playerBody = this.state.players[client.sessionId].body;
+    playerBody.collisionFilter.group = this.playerGroup;
     // add player's body to world
     Matter.World.add(this.engine.world, playerBody);
   }
@@ -111,6 +148,18 @@ exports.MyRoom = class extends colyseus.Room {
       }
 
 
+      if (player.keyUp.isHeld) {
+          if(!player.isJumping){
+            Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -15});
+            player.isJumping = true;
+          }
+        else{
+                      //Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+          //cant control jump height, but doesnt have weird stopping thing
+          //Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+        }
+      } 
+
       if (keyMsg.keyCode === player.keyLeft.keyCode) {
         if(keyMsg.pressed){
           Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
@@ -137,7 +186,7 @@ exports.MyRoom = class extends colyseus.Room {
             Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
           }
         }      
-      } 
+      }
 
 
 /*
