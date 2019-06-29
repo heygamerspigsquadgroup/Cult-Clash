@@ -17,6 +17,7 @@ export default class MatchScene extends FadeableScene {
   preload () {
     this.load.image('cultist_blue', './assets/images/cultist_blue.gif');
     this.load.image('background', './assets/images/background.gif');
+    this.load.image('platform_mid', './assets/images/platform_fill.gif');
     this.load.audio('matchStart', './assets/sound/match_start.mp3');
     this.load.audio('matchLoop', './assets/sound/match_loop.mp3');
     const domContainer = document.querySelector('#ui_container');
@@ -60,6 +61,11 @@ export default class MatchScene extends FadeableScene {
     var room = client.join('my_room');
 
     room.onJoin.add(() => {
+      // populate platforms on screen
+      room.state.platforms.onAdd = (platform, key) => {
+        this.add.sprite(platform.pos_x, platform.pos_y, 'platform_mid');
+      };
+
       room.state.players.onAdd = (player, key) => {
         this.playerList[key] = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
 
@@ -77,7 +83,7 @@ export default class MatchScene extends FadeableScene {
 
     // add handlers for key presses
     this.input.keyboard.on('keydown', event => {
-      this.room.send({
+      room.send({
         key: {
           pressed: true,
           keyCode: event.keyCode
@@ -86,7 +92,7 @@ export default class MatchScene extends FadeableScene {
     });
 
     this.input.keyboard.on('keyup', event => {
-      this.room.send({
+      room.send({
         key: {
           pressed: false,
           keyCode: event.keyCode

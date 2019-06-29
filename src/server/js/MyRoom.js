@@ -2,6 +2,7 @@ const colyseus = require('colyseus');
 const Matter = require('matter-js');
 const State = require('./State').State;
 const Player = require('./Player').Player;
+const Entity = require('./Entity').Entity;
 
 exports.MyRoom = class extends colyseus.Room {
   onInit (options) {
@@ -16,42 +17,34 @@ exports.MyRoom = class extends colyseus.Room {
     this.engine = Matter.Engine.create();
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
     
-    this.ground = Matter.Bodies.rectangle(400, 610, 810, 60, { isStatic: true});
-    Matter.World.add(this.engine.world, this.ground);
+    this.addPlatform(25, 575);
+    this.addPlatform(75, 575);
+    this.addPlatform(125, 575);
+    this.addPlatform(175, 575);
+    this.addPlatform(225, 575);
+    this.addPlatform(275, 575);
+    this.addPlatform(325, 575);
+    this.addPlatform(375, 575);
+    this.addPlatform(425, 575);
+    this.addPlatform(475, 575);
+    this.addPlatform(525, 575);
+    this.addPlatform(575, 575);
+    this.addPlatform(625, 575);
+    this.addPlatform(675, 575);
+    this.addPlatform(725, 575);
+    this.addPlatform(775, 575);
 
+    this.addPlatform(175, 475);
+    this.addPlatform(225, 475);
+    this.addPlatform(275, 475);
+
+    this.addPlatform(525, 475);
+    this.addPlatform(575, 475);
+    this.addPlatform(625, 475);
+
+
+    // so players dont collide w each other
     this.playerGroup = Matter.Body.nextGroup(true);
-
-/*    Matter.Events.on(this.engine, 'collisionStart', function(event) {
-      console.log("COLLISION!!");
-        let a = event.pairs.bodyA;
-        let b = event.pairs.bodyB;
-
-        console.log(a);
-        console.log(b);
-
-
-        // check bodies, do whatever...
-    });*/
-
-  /*Matter.Events.on(this.engine, 'collisionStart', (event) => {
-      console.log("COLLISION!");
-      var pairs = event.pairs;
-      
-      for (var i = 0, j = pairs.length; i != j; ++i) {
-          var pair = pairs[i];
-          console.log(pair.bodyA);
-          console.log(pair.bodyB);
-   
-        Object.keys(this.state.players).forEach(key => {
-          if (pair.bodyA === this.state.players[key].floorSensor){
-            console.log("floor sensor was body A");
-          }
-          else if (pair.bodyB === this.state.players[key].floorSensor){
-            console.log("floor sensor was body B");
-          }
-        });
-      }
-  })*/
 
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
         var pairs = event.pairs;
@@ -150,13 +143,13 @@ exports.MyRoom = class extends colyseus.Room {
 
       if (player.keyUp.isHeld) {
           if(!player.isJumping){
-            Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -15});
+            Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -18});
             player.isJumping = true;
           }
         else{
-                      //Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
-          //cant control jump height, but doesnt have weird stopping thing
+
           //Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
+          //cant control jump height, but doesnt have weird stopping thing
         }
       } 
 
@@ -187,68 +180,15 @@ exports.MyRoom = class extends colyseus.Room {
           }
         }      
       }
-
-
-/*
-      if (player.keyRight.isHeld === player.keyLeft.isHeld){
-        Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
-      }
-      else if(!player.keyRight.isHeld && player.keyLeft.isHeld){
-        Matter.Body.setVelocity(player.body, {x: -1 * player.speed, y: player.body.velocity.y});
-      }
-      else if(player.keyRight.isHeld && !player.keyLeft.isHeld){
-        Matter.Body.setVelocity(player.body, {x: player.speed, y: player.body.velocity.y});
-      }
-*/
-
-
-/*
-      if (keyMsg.keyCode === player.keyUp.keyCode) {
-        if(keyMsg.pressed){
-          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: -10});
-        }
-        else{
-          Matter.Body.setVelocity(player.body, {x: player.body.velocity.x, y: 0});
-        }
-      } 
-
-      else if (keyMsg.keyCode === player.keyLeft.keyCode) {
-        if(keyMsg.pressed){
-          Matter.Body.setVelocity(player.body, {x: -5, y: player.body.velocity.y});
-        }
-        else if (!player.keyRight.pressed){
-          Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
-        }
-      } 
-
-      else if (keyMsg.keyCode === player.keyDown.keyCode) {
-        if(keyMsg.pressed){
-          //keydown
-        }
-        else{
-          //keyup
-        }      
-      } 
-
-      else if (keyMsg.keyCode === player.keyRight.keyCode) {
-        if(keyMsg.pressed){
-          Matter.Body.setVelocity(player.body, {x: 5, y: player.body.velocity.y});
-        }
-        else if (!player.keyLeft.pressed){
-          Matter.Body.setVelocity(player.body, {x: 0, y: player.body.velocity.y});
-        }      
-      } 
-
-      else if (keyMsg.keyCode === player.keyAction.keyCode) {
-        if(keyMsg.pressed){
-        }
-        else{
-        }      
-      }
-      */
-
-
     }
+  }
+
+  // add a platform object to list
+  addPlatform(x, y) {
+    // fix platform gif size
+    var platform = new Entity(Matter.Bodies.rectangle(x, y, 50, 50, { isStatic: true}));
+    Matter.World.add(this.engine.world, platform.body);
+    this.state.platforms.push(platform);
   }
 
   printRoomId () {
