@@ -1,14 +1,11 @@
 /* global Colyseus ReactDOM */
-
 import Player from '../entities/Player.js';
 import MatchSceneComponent from '../react/MatchSceneComponent.js';
 import FadeableScene from './FadeableScene.js';
 import { TITLE_SCENE_ID } from '../scenes/TitleScene.js';
-
 export const MATCH_SCENE_ID = 'matchScene';
 export const MAP_WIDTH = 3200;
 export const MAP_HEIGHT = 2400;
-
 export default class MatchScene extends FadeableScene {
   constructor () {
     super(MATCH_SCENE_ID, 5000, TITLE_SCENE_ID);
@@ -30,7 +27,6 @@ export default class MatchScene extends FadeableScene {
     this.background = this.add.tileSprite(0, 0, 3200, 2400, 'background');
     this.background.setOrigin(0, 0);
     this.background.setAlpha(0.7);
-
     this.cameras.main.fadeIn(2000);
     const MINIMAP_OFFSET = 10;
     this.minimap = this.cameras.add(MINIMAP_OFFSET, MINIMAP_OFFSET,
@@ -54,14 +50,11 @@ export default class MatchScene extends FadeableScene {
       this.musicStart.stop();
       this.musicLoop.stop();
     });
-
     const websocketUrl = window.location.hostname === 'localhost'
       ? 'ws://localhost:2567'
       : 'wss://api' + window.location.hostname.substring(3) + ':443';
-
     this.client = new Colyseus.Client(websocketUrl);
     this.room = this.client.join('my_room');
-
     this.room.onJoin.add(() => {
       // populate platforms on screen
       this.room.state.platforms.onAdd = (platform, key) => {
@@ -70,6 +63,7 @@ export default class MatchScene extends FadeableScene {
 
       this.room.state.players.onAdd = (player, key) => {
         let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
+        playerObj.setKeyConfig(player);
 
         if (key === this.room.sessionId) {
           this.player = playerObj;
@@ -77,7 +71,11 @@ export default class MatchScene extends FadeableScene {
         }
 
         this.playerList[key] = playerObj;
-        // add listener for this players position
+
+        if (key === this.room.sessionId) {
+          this.currentPlayer = this.playerList[this.room.sessionId];
+        } // add listener for this players position
+
         player.onChange = changes => {
           this.playerList[key].change(changes);
         };
@@ -93,9 +91,8 @@ export default class MatchScene extends FadeableScene {
           this.dootSfx.play();
         }
       });
-    });
+    }); // add handlers for key presses
 
-    // add handlers for key presses
     this.input.keyboard.on('keydown', event => {
       this.room.send({
         key: {
@@ -103,8 +100,13 @@ export default class MatchScene extends FadeableScene {
           keyCode: event.keyCode
         }
       });
-    });
 
+      if (event.keyCode === this.currentPlayer.keyRight) {
+        this.currentPlayer.sprite.flipX = true;
+      } else if (event.keyCode === this.currentPlayer.keyLeft) {
+        this.currentPlayer.sprite.flipX = false;
+      }
+    });
     this.input.keyboard.on('keyup', event => {
       this.room.send({
         key: {
