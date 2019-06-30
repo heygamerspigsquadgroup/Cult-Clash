@@ -6,7 +6,7 @@ body {
 }
 
 canvas{
-    margin-top: 150px;
+    margin-top: 100px;
     border-top: 4pt solid #ed044c;
     border-right: 4pt solid #ed044c;
     border-bottom: 4pt solid #ffaec7;
@@ -26,7 +26,7 @@ canvas{
 }
 
 
-#join_btn {
+#join_btn, #leave_btn{
    background: none ;
     font-family: monospace, sans-serif;
     font-size: 14px;
@@ -42,4 +42,21 @@ canvas{
 
 #join_btn:active{
     background: #ffaec7;
+}
+
+#leave_btn:hover {
+    background: #ed044c;
+}
+
+#leave_btn:active{
+    background: #ffaec7;
+}
+
+#instructions{
+    color: white;
+    font-family: monospace, sans-serif;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 10px;
+    margin-bottom: 5px;
 }
