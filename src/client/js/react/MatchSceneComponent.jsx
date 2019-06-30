@@ -16,11 +16,11 @@ export default class MatchSceneComponent extends React.Component {
 
   render () {
     return <div>
-      <div className='centered'>
+      <div className='centered' id='instructions'>
         WASD to move (for now).
       </div>
-      <div className='centered'>
-        <button onClick={this.leaveGame}>
+      <div className='centered' >
+        <button id='leave_btn' onClick={this.leaveGame}>
           Leave Game
         </button>
       </div>
