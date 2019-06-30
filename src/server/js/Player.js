@@ -2,7 +2,6 @@ const Matter = require('matter-js');
 const Entity = require('./Entity').Entity;
 const Key = require('./Key').Key;
 const schema = require('@colyseus/schema');
-const Schema = schema.Schema;
 const type = schema.type;
 
 class Player extends Entity {

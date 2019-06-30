@@ -1,29 +1,29 @@
 class RuneBag {
-  constructor(...runes) {
+  constructor (...runes) {
     this.possibleRunes = runes;
     this.contents = [];
     this.addRunes(runes);
   }
 
-  addRunes(...runes) {
+  addRunes (...runes) {
     runes.forEach(() => this.addRune);
   }
 
-  addRune(rune) {
-    if(this.possibleRunes.includes(rune)) {
+  addRune (rune) {
+    if (this.possibleRunes.includes(rune)) {
       this.contents.push(rune);
     }
   }
 
-  takeRune(rune) {
-    if(this.contents.includes(rune)) {
+  takeRune (rune) {
+    if (this.contents.includes(rune)) {
       this.contents = this.contents.splice(this.contents.indexOf(rune), 1);
       return rune;
     }
     return null;
   }
 
-  takeRandomRune() {
+  takeRandomRune () {
     let rune = this.contents[Math.floor(Math.random() * this.contents.length)];
     return this.takeRune(rune);
   }
