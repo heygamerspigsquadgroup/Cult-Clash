@@ -20,6 +20,7 @@ exports.MyRoom = class extends colyseus.Room {
       new ColorCode('green', 800, 600),
       new ColorCode('orange', 2200, 600)
     ];
+
     let keys = this.getKeys();
     this.leftKeys = keys[0];
     this.rightKeys = keys[1];
@@ -174,22 +175,22 @@ exports.MyRoom = class extends colyseus.Room {
       var player = this.state.players[sessionId];
 
       // update held state
-      if (keyMsg.keyCode === player.keyUp.keyCode) {
-        player.keyUp.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyLeft.keyCode) {
-        player.keyLeft.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyDown.keyCode) {
-        player.keyDown.isHeld = keyMsg.keyDown;
-      } else if (keyMsg.keyCode === player.keyRight.keyCode) {
-        player.keyRight.isHeld = keyMsg.pressed;
-      } else if (keyMsg.keyCode === player.keyAction.keyCode) {
-        if (keyMsg.pressed && !player.keyAction.isHeld) {
+      if (keyMsg.keyCode === player.keyUp) {
+        player.holdUp = keyMsg.pressed;
+      } else if (keyMsg.keyCode === player.keyLeft) {
+        player.holdLeft = keyMsg.pressed;
+      } else if (keyMsg.keyCode === player.keyDown) {
+        player.holdDown = keyMsg.pressed;
+      } else if (keyMsg.keyCode === player.keyRight) {
+        player.holdDown = keyMsg.pressed;
+      } else if (keyMsg.keyCode === player.keyAction) {
+        if (keyMsg.pressed && !player.holdAction) {
           this.broadcast('doot');
         }
-        player.keyAction.isHeld = keyMsg.pressed;
+        player.holdAction = keyMsg.pressed;
       }
 
-      if (player.keyUp.isHeld) {
+      if (player.holdUp) {
         if (!player.isJumping) {
           Matter.Body.setVelocity(player.body, { x: player.body.velocity.x, y: -18 });
           player.isJumping = true;
@@ -200,21 +201,23 @@ exports.MyRoom = class extends colyseus.Room {
         }
       }
 
-      if (keyMsg.keyCode === player.keyLeft.keyCode) {
+      if (keyMsg.keyCode === player.keyLeft) {
         if (keyMsg.pressed) {
+          player.facingLeft = true;
           Matter.Body.setVelocity(player.body, { x: -1 * player.speed, y: player.body.velocity.y });
         } else {
-          if (!player.keyRight.isHeld) {
+          if (!player.holdRight) {
             Matter.Body.setVelocity(player.body, { x: 0, y: player.body.velocity.y });
           } else {
             Matter.Body.setVelocity(player.body, { x: player.speed, y: player.body.velocity.y });
           }
         }
-      } else if (keyMsg.keyCode === player.keyRight.keyCode) {
+      } else if (keyMsg.keyCode === player.keyRight) {
         if (keyMsg.pressed) {
+          player.facingLeft = false;
           Matter.Body.setVelocity(player.body, { x: player.speed, y: player.body.velocity.y });
         } else {
-          if (!player.keyLeft.isHeld) {
+          if (!player.holdLeft) {
             Matter.Body.setVelocity(player.body, { x: 0, y: player.body.velocity.y });
           } else {
             Matter.Body.setVelocity(player.body, { x: -1 * player.speed, y: player.body.velocity.y });

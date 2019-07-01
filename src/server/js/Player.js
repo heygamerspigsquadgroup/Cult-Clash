@@ -1,6 +1,5 @@
 const Matter = require('matter-js');
 const Entity = require('./Entity').Entity;
-const Key = require('./Key').Key;
 const schema = require('@colyseus/schema');
 const type = schema.type;
 
@@ -11,20 +10,38 @@ class Player extends Entity {
 
     // super(Matter.Body.create({parts: [playerBody, floorSensor], friction:0}));
     super(playerBody);
+
+    this.keyUp = 87; // W
+    this.keyLeft = 65; // A
+    this.keyDown = 83; // S
+    this.keyRight = 68; // D
+    this.keyAction = 32; // SPACE
+
+    // if key is being held currently
+    this.holdUp = false;
+    this.holdLeft = false;
+    this.holdDown = false;
+    this.holdRight = false;
+    this.holdAction = false;
+
     this.speed = 8;
-    // these may be remapped later
+
     this.color = colorCode.color;
     this.colorCode = colorCode;
-    this.keyUp = new Key(87); // W
-    this.keyLeft = new Key(65); // A
-    this.keyDown = new Key(83); // S
-    this.keyRight = new Key(68); // D
-    this.keyAction = new Key(32); // SPACE
+
+    this.facingLeft = true;
 
     this.isJumping = false;
   }
 }
-type('string')(Player.prototype, 'color');
 
-// other possible properties: weight, sprite, collision flag, etc
+// must be declared in prototype & be schema.type to support listeners
+type('uint8')(Player.prototype, 'keyUp');
+type('uint8')(Player.prototype, 'keyLeft');
+type('uint8')(Player.prototype, 'keyDown');
+type('uint8')(Player.prototype, 'keyRight');
+type('uint8')(Player.prototype, 'keyAction');
+type('string')(Player.prototype, 'color');
+type('boolean')(Player.prototype, 'facingLeft');
+
 exports.Player = Player;

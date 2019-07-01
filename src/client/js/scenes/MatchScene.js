@@ -1,14 +1,11 @@
 /* global Colyseus ReactDOM */
-
 import Player from '../entities/Player.js';
 import MatchSceneComponent from '../react/MatchSceneComponent.js';
 import FadeableScene from './FadeableScene.js';
 import { TITLE_SCENE_ID } from '../scenes/TitleScene.js';
-
 export const MATCH_SCENE_ID = 'matchScene';
 export const MAP_WIDTH = 3200;
 export const MAP_HEIGHT = 2400;
-
 export default class MatchScene extends FadeableScene {
   constructor () {
     super(MATCH_SCENE_ID, 5000, TITLE_SCENE_ID);
@@ -33,7 +30,6 @@ export default class MatchScene extends FadeableScene {
     this.background = this.add.tileSprite(0, 0, 3200, 2400, 'background');
     this.background.setOrigin(0, 0);
     this.background.setAlpha(0.7);
-
     this.cameras.main.fadeIn(2000);
     const MINIMAP_OFFSET = 10;
     this.minimap = this.cameras.add(MINIMAP_OFFSET, MINIMAP_OFFSET,
@@ -57,35 +53,38 @@ export default class MatchScene extends FadeableScene {
       this.musicStart.stop();
       this.musicLoop.stop();
     });
-
     const websocketUrl = window.location.hostname === 'localhost'
       ? 'ws://localhost:2567'
       : 'wss://api' + window.location.hostname.substring(3) + ':443';
-
     this.client = new Colyseus.Client(websocketUrl);
     this.room = this.client.join('my_room');
-
     this.room.onJoin.add(() => {
       // populate platforms on screen
       this.room.state.platforms.onAdd = (platform, key) => {
         this.add.sprite(platform.pos_x, platform.pos_y, 'platform_mid');
       };
 
+      // when a player joins this room
       this.room.state.players.onAdd = (player, key) => {
         let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_' + player.color));
+        // get starting key config assigned by server
+        playerObj.setKeyConfig(player);
+        // add new player to playerList map
+        this.playerList[key] = playerObj;
 
+        // set camera to follow player that is current client
         if (key === this.room.sessionId) {
           this.player = playerObj;
           this.cameras.main.startFollow(this.player.sprite);
         }
 
-        this.playerList[key] = playerObj;
-        // add listener for this players position
+        // handle when this player's attributes change on serverside
         player.onChange = changes => {
-          this.playerList[key].change(changes);
+          playerObj.change(changes);
         };
       };
 
+      // when a player leaves room, remove from clientside
       this.room.state.players.onRemove = (player, key) => {
         this.playerList[key].destructor();
         delete this.playerList[key];
@@ -107,7 +106,6 @@ export default class MatchScene extends FadeableScene {
         }
       });
     });
-
     this.input.keyboard.on('keyup', event => {
       this.room.send({
         key: {
