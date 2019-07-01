@@ -13,6 +13,9 @@ export default class MatchScene extends FadeableScene {
 
   preload () {
     this.load.image('cultist_blue', './assets/images/cultist_blue.gif');
+    this.load.image('cultist_purple', './assets/images/cultist_purple.gif');
+    this.load.image('cultist_green', './assets/images/cultist_green.gif');
+    this.load.image('cultist_orange', './assets/images/cultist_orange.gif');
     this.load.image('background', './assets/images/background.gif');
     this.load.image('platform_mid', './assets/images/platform_fill.gif');
     this.load.audio('matchStart', './assets/sound/match_start.mp3');
@@ -62,7 +65,7 @@ export default class MatchScene extends FadeableScene {
       };
 
       this.room.state.players.onAdd = (player, key) => {
-        let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_blue'));
+        let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_' + player.color));
         playerObj.setKeyConfig(player);
 
         if (key === this.room.sessionId) {
