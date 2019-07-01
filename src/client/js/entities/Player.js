@@ -28,6 +28,8 @@ export default class Player {
         this.keyRight = change.value;
       } else if (change.field === 'keyAction') {
         this.keyAction = change.value;
+      } else if (change.field === 'facingLeft') {
+        this.sprite.flipX = !change.value;
       }
     });
   }
@@ -38,7 +40,6 @@ export default class Player {
     this.keyDown = player.keyDown;
     this.keyRight = player.keyRight;
     this.keyAction = player.keyAction;
-    console.log(this.keyUp);
   }
 
   setX (x, prevX) {

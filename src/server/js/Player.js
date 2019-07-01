@@ -25,18 +25,23 @@ class Player extends Entity {
     this.holdAction = false;
 
     this.speed = 8;
-    
+
     this.color = colorCode.color;
     this.colorCode = colorCode;
+
+    this.facingLeft = true;
 
     this.isJumping = false;
   }
 }
+
+// must be declared in prototype & be schema.type to support listeners
 type('uint8')(Player.prototype, 'keyUp');
 type('uint8')(Player.prototype, 'keyLeft');
 type('uint8')(Player.prototype, 'keyDown');
 type('uint8')(Player.prototype, 'keyRight');
 type('uint8')(Player.prototype, 'keyAction');
 type('string')(Player.prototype, 'color');
+type('boolean')(Player.prototype, 'facingLeft');
 
 exports.Player = Player;

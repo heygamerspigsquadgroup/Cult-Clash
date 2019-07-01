@@ -20,6 +20,7 @@ exports.MyRoom = class extends colyseus.Room {
       new ColorCode('green', 800, 600),
       new ColorCode('orange', 2200, 600)
     ];
+
     let keys = this.getKeys();
     this.leftKeys = keys[0];
     this.rightKeys = keys[1];
@@ -184,7 +185,6 @@ exports.MyRoom = class extends colyseus.Room {
         player.holdDown = keyMsg.pressed;
       } else if (keyMsg.keyCode === player.keyAction) {
         if (keyMsg.pressed && !player.holdAction) {
-          player.keyUp = 43;
           this.broadcast('doot');
         }
         player.holdAction = keyMsg.pressed;
@@ -203,6 +203,7 @@ exports.MyRoom = class extends colyseus.Room {
 
       if (keyMsg.keyCode === player.keyLeft) {
         if (keyMsg.pressed) {
+          player.facingLeft = true;
           Matter.Body.setVelocity(player.body, { x: -1 * player.speed, y: player.body.velocity.y });
         } else {
           if (!player.holdRight) {
@@ -213,6 +214,7 @@ exports.MyRoom = class extends colyseus.Room {
         }
       } else if (keyMsg.keyCode === player.keyRight) {
         if (keyMsg.pressed) {
+          player.facingLeft = false;
           Matter.Body.setVelocity(player.body, { x: player.speed, y: player.body.velocity.y });
         } else {
           if (!player.holdLeft) {

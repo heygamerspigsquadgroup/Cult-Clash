@@ -64,26 +64,27 @@ export default class MatchScene extends FadeableScene {
         this.add.sprite(platform.pos_x, platform.pos_y, 'platform_mid');
       };
 
+      // when a player joins this room
       this.room.state.players.onAdd = (player, key) => {
         let playerObj = new Player(this.add.sprite(player.pos_x, player.pos_y, 'cultist_' + player.color));
+        // get starting key config assigned by server
         playerObj.setKeyConfig(player);
+        // add new player to playerList map
+        this.playerList[key] = playerObj;
 
+        // set camera to follow player that is current client
         if (key === this.room.sessionId) {
           this.player = playerObj;
           this.cameras.main.startFollow(this.player.sprite);
         }
 
-        this.playerList[key] = playerObj;
-
-        if (key === this.room.sessionId) {
-          this.currentPlayer = this.playerList[this.room.sessionId];
-        } // add listener for this players position
-
+        // handle when this player's attributes change on serverside
         player.onChange = changes => {
-          this.playerList[key].change(changes);
+          playerObj.change(changes);
         };
       };
 
+      // when a player leaves room, remove from clientside
       this.room.state.players.onRemove = (player, key) => {
         this.playerList[key].destructor();
         delete this.playerList[key];
@@ -94,8 +95,9 @@ export default class MatchScene extends FadeableScene {
           this.dootSfx.play();
         }
       });
-    }); // add handlers for key presses
+    });
 
+    // add handlers for key presses
     this.input.keyboard.on('keydown', event => {
       this.room.send({
         key: {
@@ -103,12 +105,6 @@ export default class MatchScene extends FadeableScene {
           keyCode: event.keyCode
         }
       });
-
-      if (event.keyCode === this.currentPlayer.keyRight) {
-        this.currentPlayer.sprite.flipX = true;
-      } else if (event.keyCode === this.currentPlayer.keyLeft) {
-        this.currentPlayer.sprite.flipX = false;
-      }
     });
     this.input.keyboard.on('keyup', event => {
       this.room.send({
