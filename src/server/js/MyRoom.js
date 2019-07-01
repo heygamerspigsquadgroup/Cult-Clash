@@ -3,6 +3,8 @@ const Matter = require('matter-js');
 const State = require('./State').State;
 const Player = require('./Player').Player;
 const Entity = require('./Entity').Entity;
+const ColorCode = require('./ColorCode').ColorCode;
+const RuneBagConst = require('./RuneBag');
 
 exports.MyRoom = class extends colyseus.Room {
   onInit (options) {
@@ -12,10 +14,21 @@ exports.MyRoom = class extends colyseus.Room {
     console.log('\nCREATING NEW ROOM');
     this.printRoomId();
     this.setState(new State());
+    this.unusedColors = [
+      new ColorCode('purple', 2200, 1650),
+      new ColorCode('blue', 800, 1650),
+      new ColorCode('green', 800, 600),
+      new ColorCode('orange', 2200, 600)
+    ];
+    let keys = this.getKeys();
+    this.leftKeys = keys[0];
+    this.rightKeys = keys[1];
+    this.upKeys = keys[2];
+    this.downKeys = keys[3];
 
     // add physics engine
     this.engine = Matter.Engine.create();
-    this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 800, y: 600 } };
+    this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 3200, y: 2400 } };
 
     this.addPlatform(25, 575);
     this.addPlatform(75, 575);
@@ -41,6 +54,46 @@ exports.MyRoom = class extends colyseus.Room {
     this.addPlatform(525, 475);
     this.addPlatform(575, 475);
     this.addPlatform(625, 475);
+
+    this.addPlatform(2100, 850);
+    this.addPlatform(2150, 850);
+    this.addPlatform(2200, 850);
+    this.addPlatform(2250, 850);
+    this.addPlatform(2300, 850);
+    this.addPlatform(2350, 850);
+    this.addPlatform(2400, 850);
+    this.addPlatform(2450, 850);
+    this.addPlatform(2500, 850);
+
+    this.addPlatform(2100, 1800);
+    this.addPlatform(2150, 1800);
+    this.addPlatform(2200, 1800);
+    this.addPlatform(2250, 1800);
+    this.addPlatform(2300, 1800);
+    this.addPlatform(2350, 1800);
+    this.addPlatform(2400, 1800);
+    this.addPlatform(2450, 1800);
+    this.addPlatform(2500, 1800);
+
+    this.addPlatform(700, 850);
+    this.addPlatform(750, 850);
+    this.addPlatform(800, 850);
+    this.addPlatform(850, 850);
+    this.addPlatform(900, 850);
+    this.addPlatform(950, 850);
+    this.addPlatform(1000, 850);
+    this.addPlatform(1050, 850);
+    this.addPlatform(1100, 850);
+
+    this.addPlatform(700, 1800);
+    this.addPlatform(750, 1800);
+    this.addPlatform(800, 1800);
+    this.addPlatform(850, 1800);
+    this.addPlatform(900, 1800);
+    this.addPlatform(950, 1800);
+    this.addPlatform(1000, 1800);
+    this.addPlatform(1050, 1800);
+    this.addPlatform(1100, 1800);
 
     // so players dont collide w each other
     this.playerGroup = Matter.Body.nextGroup(true);
@@ -80,7 +133,10 @@ exports.MyRoom = class extends colyseus.Room {
     this.printSessionId(client);
     this.printRoomId();
 
-    this.state.players[client.sessionId] = new Player(400, 200);
+    let colorIndex = Math.floor(Math.random() * this.unusedColors.length);
+    let color = this.unusedColors[colorIndex];
+    this.unusedColors = this.unusedColors.splice(colorIndex, 1);
+    this.state.players[client.sessionId] = new Player(color);
     var playerBody = this.state.players[client.sessionId].body;
     playerBody.collisionFilter.group = this.playerGroup;
     // add player's body to world
@@ -100,6 +156,7 @@ exports.MyRoom = class extends colyseus.Room {
     this.printClientId(client);
     this.printSessionId(client);
     this.printRoomId();
+    this.unusedColors.push(this.state.players[client.sessionId].colorCode);
 
     // remove player's body from world
     Matter.World.remove(this.engine.world, this.state.players[client.sessionId].body);
@@ -183,5 +240,16 @@ exports.MyRoom = class extends colyseus.Room {
   }
   printClientId (client) {
     console.log('\t(Client ID: ' + client.id + ')');
+  }
+
+  getKeys () {
+    const SHUFFLE_COUNT = 8;
+    let keys = [RuneBagConst.MOVEMENT_SET_1, RuneBagConst.MOVEMENT_SET_2, RuneBagConst.MOVEMENT_SET_3, RuneBagConst.MOVEMENT_SET_4];
+    for (let i = 0; i < SHUFFLE_COUNT; i++) {
+      let first = Math.floor(Math.random() * keys.length);
+      let second = Math.floor(Math.random() * keys.length);
+      [keys[first], keys[second]] = [keys[second], keys[first]];
+    }
+    return keys;
   }
 };
