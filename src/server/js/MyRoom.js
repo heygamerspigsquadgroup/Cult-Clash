@@ -1,10 +1,15 @@
 const colyseus = require('colyseus');
 const Matter = require('matter-js');
+const parser = require('fast-xml-parser');
 const State = require('./State').State;
 const Player = require('./Player').Player;
 const Entity = require('./Entity').Entity;
 const ColorCode = require('./ColorCode').ColorCode;
 const RuneBagConst = require('./RuneBag');
+const fs = require('fs');
+const path = require("path");
+
+const MAP_FOLDER = './maps'
 
 exports.MyRoom = class extends colyseus.Room {
   onInit (options) {
@@ -14,12 +19,6 @@ exports.MyRoom = class extends colyseus.Room {
     console.log('\nCREATING NEW ROOM');
     this.printRoomId();
     this.setState(new State());
-    this.unusedColors = [
-      new ColorCode('purple', 2200, 1650),
-      new ColorCode('blue', 800, 1650),
-      new ColorCode('green', 800, 600),
-      new ColorCode('orange', 2200, 600)
-    ];
 
     let keys = this.getKeys();
     this.leftKeys = keys[0];
@@ -27,74 +26,29 @@ exports.MyRoom = class extends colyseus.Room {
     this.upKeys = keys[2];
     this.downKeys = keys[3];
 
+    // load map
+    const dirs = fs.readdirSync(MAP_FOLDER).map(file => {
+      return path.join(MAP_FOLDER, file);
+    });
+    let mapFile = dirs[Math.floor(Math.random() * (dirs.length))];
+    let mapContents = fs.readFileSync(mapFile, {encoding: 'UTF-8'});
+    let mapData = parser.parse(mapContents, {ignoreAttributes: false, parseAttributeValue: true});
+    let map = this.createMap(mapData);
+
     // add physics engine
     this.engine = Matter.Engine.create();
-    this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: 3200, y: 2400 } };
+    this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: map.width, y: map.height } };
+    this.unusedColors = [];
+    map.totems.tiles.forEach((totem) => {
+      if(map.blueStart === totem.tile) this.unusedColors.push(new ColorCode('blue', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if(map.purpleStart === totem.tile) this.unusedColors.push(new ColorCode('purple', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if(map.greenStart === totem.tile) this.unusedColors.push(new ColorCode('green', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if(map.orangeStart === totem.tile) this.unusedColors.push(new ColorCode('orange', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+    });
 
-    this.addPlatform(25, 575);
-    this.addPlatform(75, 575);
-    this.addPlatform(125, 575);
-    this.addPlatform(175, 575);
-    this.addPlatform(225, 575);
-    this.addPlatform(275, 575);
-    this.addPlatform(325, 575);
-    this.addPlatform(375, 575);
-    this.addPlatform(425, 575);
-    this.addPlatform(475, 575);
-    this.addPlatform(525, 575);
-    this.addPlatform(575, 575);
-    this.addPlatform(625, 575);
-    this.addPlatform(675, 575);
-    this.addPlatform(725, 575);
-    this.addPlatform(775, 575);
-
-    this.addPlatform(175, 475);
-    this.addPlatform(225, 475);
-    this.addPlatform(275, 475);
-
-    this.addPlatform(525, 475);
-    this.addPlatform(575, 475);
-    this.addPlatform(625, 475);
-
-    this.addPlatform(2100, 850);
-    this.addPlatform(2150, 850);
-    this.addPlatform(2200, 850);
-    this.addPlatform(2250, 850);
-    this.addPlatform(2300, 850);
-    this.addPlatform(2350, 850);
-    this.addPlatform(2400, 850);
-    this.addPlatform(2450, 850);
-    this.addPlatform(2500, 850);
-
-    this.addPlatform(2100, 1800);
-    this.addPlatform(2150, 1800);
-    this.addPlatform(2200, 1800);
-    this.addPlatform(2250, 1800);
-    this.addPlatform(2300, 1800);
-    this.addPlatform(2350, 1800);
-    this.addPlatform(2400, 1800);
-    this.addPlatform(2450, 1800);
-    this.addPlatform(2500, 1800);
-
-    this.addPlatform(700, 850);
-    this.addPlatform(750, 850);
-    this.addPlatform(800, 850);
-    this.addPlatform(850, 850);
-    this.addPlatform(900, 850);
-    this.addPlatform(950, 850);
-    this.addPlatform(1000, 850);
-    this.addPlatform(1050, 850);
-    this.addPlatform(1100, 850);
-
-    this.addPlatform(700, 1800);
-    this.addPlatform(750, 1800);
-    this.addPlatform(800, 1800);
-    this.addPlatform(850, 1800);
-    this.addPlatform(900, 1800);
-    this.addPlatform(950, 1800);
-    this.addPlatform(1000, 1800);
-    this.addPlatform(1050, 1800);
-    this.addPlatform(1100, 1800);
+    map.walls.tiles.forEach((wall) => {
+      this.addPlatform(wall.x + map.tiles[wall.tile].width / 2, wall.y + map.tiles[wall.tile].height / 2);
+    });
 
     // so players dont collide w each other
     this.playerGroup = Matter.Body.nextGroup(true);
@@ -135,8 +89,7 @@ exports.MyRoom = class extends colyseus.Room {
     this.printRoomId();
 
     let colorIndex = Math.floor(Math.random() * this.unusedColors.length);
-    let color = this.unusedColors[colorIndex];
-    this.unusedColors = this.unusedColors.splice(colorIndex, 1);
+    let color = this.unusedColors.splice(colorIndex, 1)[0];
     this.state.players[client.sessionId] = new Player(color);
     var playerBody = this.state.players[client.sessionId].body;
     playerBody.collisionFilter.group = this.playerGroup;
@@ -254,5 +207,72 @@ exports.MyRoom = class extends colyseus.Room {
       [keys[first], keys[second]] = [keys[second], keys[first]];
     }
     return keys;
+  }
+
+  createMap(mapData) {
+    let map = {};
+    let tileRowSize = mapData.map['@_width'];
+    let tileWidth = mapData.map['@_tilewidth'];
+    let tileColumnSize = mapData.map['@_height'];
+    let tileHeight = mapData.map['@_tileheight'];
+    map.width = tileRowSize * tileWidth;
+    map.height = tileColumnSize * tileHeight;
+    map.tiles = [];
+    let tileCount = 0;
+    mapData.map.tileset.forEach((tile) => {
+      if(Array.isArray(tile.tile)) {
+        tile.tile.forEach((subTile) => {
+          tileCount++;
+          map.tiles.push({
+            image: /[^/]*$/.exec(subTile.image['@_source'])[0],
+            width: subTile.image['@_width'],
+            height: subTile.image['@_height']
+          });
+          if(map.tiles[map.tiles.length - 1].image.includes('blue')) map.blueStart = map.tiles.length - 1;
+          if(map.tiles[map.tiles.length - 1].image.includes('green')) map.greenStart = map.tiles.length - 1;
+          if(map.tiles[map.tiles.length - 1].image.includes('orange')) map.orangeStart = map.tiles.length - 1;
+          if(map.tiles[map.tiles.length - 1].image.includes('purple')) map.purpleStart = map.tiles.length - 1;
+        });
+      } else {
+        tileCount++;
+        map.tiles.push({
+          image: /[^/]*$/.exec(tile.tile.image['@_source'])[0],
+          width: tile.tile.image['@_width'],
+          height: tile.tile.image['@_height']
+        });
+      }
+    });
+    map.background = {
+      tiles: []
+    };
+    map.walls = {
+      tiles: []
+    };
+    map.totems = {
+      tiles: []
+    };
+    mapData.map.layer.forEach((layerData) => {
+      let layer = map[layerData['@_name']];
+      layer.opacity = layerData['@_opacity'] || 1;
+      let tiles = layerData.data['#text'].split('\r\n');
+      for(let i = 0; i < tiles.length; i++) {
+        tiles[i] = tiles[i].split(',').map((tile) => {
+          return parseInt(tile, 10);
+        })
+        for(let j = 0; j < tiles[i].length; j++) {
+          let x = j * tileWidth;
+          let y = i * tileHeight;
+          if(tiles[i][j]) {
+            layer.tiles.push({
+              tile: tiles[i][j] - 1,
+              x: x,
+              y: y
+            });
+          }
+        }
+      }
+    });
+
+    return map;
   }
 };
