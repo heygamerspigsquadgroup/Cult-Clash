@@ -7,9 +7,9 @@ const Entity = require('./Entity').Entity;
 const ColorCode = require('./ColorCode').ColorCode;
 const RuneBagConst = require('./RuneBag');
 const fs = require('fs');
-const path = require("path");
+const path = require('path');
 
-const MAP_FOLDER = './maps'
+const MAP_FOLDER = './maps';
 
 exports.MyRoom = class extends colyseus.Room {
   onInit (options) {
@@ -31,8 +31,8 @@ exports.MyRoom = class extends colyseus.Room {
       return path.join(MAP_FOLDER, file);
     });
     let mapFile = dirs[Math.floor(Math.random() * (dirs.length))];
-    let mapContents = fs.readFileSync(mapFile, {encoding: 'UTF-8'});
-    let mapData = parser.parse(mapContents, {ignoreAttributes: false, parseAttributeValue: true});
+    let mapContents = fs.readFileSync(mapFile, { encoding: 'UTF-8' });
+    let mapData = parser.parse(mapContents, { ignoreAttributes: false, parseAttributeValue: true });
     let map = this.createMap(mapData);
 
     // add physics engine
@@ -40,10 +40,10 @@ exports.MyRoom = class extends colyseus.Room {
     this.engine.world.bounds = { min: { x: 0, y: 0 }, max: { x: map.width, y: map.height } };
     this.unusedColors = [];
     map.totems.tiles.forEach((totem) => {
-      if(map.blueStart === totem.tile) this.unusedColors.push(new ColorCode('blue', totem.x + map.tiles[totem.tile].width / 2, totem.y));
-      if(map.purpleStart === totem.tile) this.unusedColors.push(new ColorCode('purple', totem.x + map.tiles[totem.tile].width / 2, totem.y));
-      if(map.greenStart === totem.tile) this.unusedColors.push(new ColorCode('green', totem.x + map.tiles[totem.tile].width / 2, totem.y));
-      if(map.orangeStart === totem.tile) this.unusedColors.push(new ColorCode('orange', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if (map.blueStart === totem.tile) this.unusedColors.push(new ColorCode('blue', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if (map.purpleStart === totem.tile) this.unusedColors.push(new ColorCode('purple', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if (map.greenStart === totem.tile) this.unusedColors.push(new ColorCode('green', totem.x + map.tiles[totem.tile].width / 2, totem.y));
+      if (map.orangeStart === totem.tile) this.unusedColors.push(new ColorCode('orange', totem.x + map.tiles[totem.tile].width / 2, totem.y));
     });
 
     map.walls.tiles.forEach((wall) => {
@@ -209,7 +209,7 @@ exports.MyRoom = class extends colyseus.Room {
     return keys;
   }
 
-  createMap(mapData) {
+  createMap (mapData) {
     let map = {};
     let tileRowSize = mapData.map['@_width'];
     let tileWidth = mapData.map['@_tilewidth'];
@@ -218,23 +218,20 @@ exports.MyRoom = class extends colyseus.Room {
     map.width = tileRowSize * tileWidth;
     map.height = tileColumnSize * tileHeight;
     map.tiles = [];
-    let tileCount = 0;
     mapData.map.tileset.forEach((tile) => {
-      if(Array.isArray(tile.tile)) {
+      if (Array.isArray(tile.tile)) {
         tile.tile.forEach((subTile) => {
-          tileCount++;
           map.tiles.push({
             image: /[^/]*$/.exec(subTile.image['@_source'])[0],
             width: subTile.image['@_width'],
             height: subTile.image['@_height']
           });
-          if(map.tiles[map.tiles.length - 1].image.includes('blue')) map.blueStart = map.tiles.length - 1;
-          if(map.tiles[map.tiles.length - 1].image.includes('green')) map.greenStart = map.tiles.length - 1;
-          if(map.tiles[map.tiles.length - 1].image.includes('orange')) map.orangeStart = map.tiles.length - 1;
-          if(map.tiles[map.tiles.length - 1].image.includes('purple')) map.purpleStart = map.tiles.length - 1;
+          if (map.tiles[map.tiles.length - 1].image.includes('blue')) map.blueStart = map.tiles.length - 1;
+          if (map.tiles[map.tiles.length - 1].image.includes('green')) map.greenStart = map.tiles.length - 1;
+          if (map.tiles[map.tiles.length - 1].image.includes('orange')) map.orangeStart = map.tiles.length - 1;
+          if (map.tiles[map.tiles.length - 1].image.includes('purple')) map.purpleStart = map.tiles.length - 1;
         });
       } else {
-        tileCount++;
         map.tiles.push({
           image: /[^/]*$/.exec(tile.tile.image['@_source'])[0],
           width: tile.tile.image['@_width'],
@@ -255,14 +252,14 @@ exports.MyRoom = class extends colyseus.Room {
       let layer = map[layerData['@_name']];
       layer.opacity = layerData['@_opacity'] || 1;
       let tiles = layerData.data['#text'].split('\r\n');
-      for(let i = 0; i < tiles.length; i++) {
+      for (let i = 0; i < tiles.length; i++) {
         tiles[i] = tiles[i].split(',').map((tile) => {
           return parseInt(tile, 10);
-        })
-        for(let j = 0; j < tiles[i].length; j++) {
+        });
+        for (let j = 0; j < tiles[i].length; j++) {
           let x = j * tileWidth;
           let y = i * tileHeight;
-          if(tiles[i][j]) {
+          if (tiles[i][j]) {
             layer.tiles.push({
               tile: tiles[i][j] - 1,
               x: x,
