@@ -9,7 +9,7 @@
     "bottlejs": "^1.7.2",
     "colyseus": "^0.10.7",
     "express": "^4.17.1",
-    "express-jwt": "^5.3.1",
+    "express-jwt": "^6.0.0",
     "matter-js": "^0.14.2"
   },
   "devDependencies": {
